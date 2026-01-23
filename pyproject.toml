@@ -23,5 +23,10 @@ dependencies = [
 # Optional dependency groups
 [project.optional-dependencies]
 
+postgres = [
+  "SQLAlchemy>=2",
+  "psycopg2-binary",
+]
+
 [project.urls]
 Repository = "https://github.com/glue-lab/vertebrate"
