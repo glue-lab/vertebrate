@@ -1,5 +1,5 @@
 """
-Implementations of ABCs from the PostgreSQL ecosystem.
+Implementation of a PostgreSQL database as an execution environment.
 """
 
 from typing import Any
