@@ -28,5 +28,9 @@ postgres = [
   "psycopg2-binary",
 ]
 
+htcondor = [
+  "htcondor",
+]
+
 [project.urls]
 Repository = "https://github.com/glue-lab/vertebrate"
