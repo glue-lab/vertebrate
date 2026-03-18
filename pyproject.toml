@@ -28,6 +28,10 @@ postgres = [
   "psycopg2-binary",
 ]
 
+tables = [
+  "SQLAlchemy>=2",
+]
+
 htcondor = [
   "htcondor",
 ]
