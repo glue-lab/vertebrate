@@ -14,43 +14,11 @@ pip install vertebrate
 
 ## Basic Usage
 
-```python
-# Implement a computing environment that uses resources from the OS
+Check out the examples in `vertebrate.examples`! For instance, this example shows how to
+use the built-in OS environment:
 
-import shutil
-import subprocess
-from typing import Any
-
-from vertebrate.compute import Environment
-
-
-class OSEnvironment(Environment):
-    """
-    Execute processes on the local operating system.
-    """
-
-    def _exe_path(self, item: str) -> str:
-        return shutil.which(item)
-
-    def __contains__(self, item: str) -> bool:
-        return self._exe_path(item) is not None
-
-    def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
-        exe_path = self._exe_path(executable)
-        completed = subprocess.run((exe_path,) + args, env=kwargs, capture_output=True)
-        return completed.stdout
-
-
-# The environment is a collection of executables that can be called from Python
-local_machine = OSEnvironment()
-print(local_machine["ls"]("-l", ".").decode("utf-8"))  # Return type is bytes
-local_machine["bash"]("-c", "echo $item", item="hello")  # Environment variables as kwargs
-
-# Is git installed on your local machine?
-"git" in local_machine
-
-# Verify that this can return false
-"not_a_program" in local_machine
+```bash
+python -m vertebrate.examples.os
 ```
 
 Check out the built-in environment implementation for HTCondor! Installation:
