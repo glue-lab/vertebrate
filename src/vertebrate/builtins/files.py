@@ -5,7 +5,7 @@ An implementation of a file namespace.
 from pathlib import Path
 from typing import IO, Type
 
-from data import Namespace, Location, Address
+from vertebrate.data import Namespace, Location, Address
 
 
 # Datatypes that will be inferred by file extension

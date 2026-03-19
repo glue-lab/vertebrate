@@ -5,7 +5,13 @@ An implementation of a variable namespace.
 from typing import Any, Type
 from uuid import uuid4
 
-from data import Namespace, Location, Address, Temporary, TemporaryLocation
+from vertebrate.data import (
+    Namespace,
+    Location,
+    Address,
+    Temporary,
+    TemporaryLocation,
+)
 
 
 class Value(Location):

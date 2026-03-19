@@ -8,7 +8,7 @@ from typing import Type
 from sqlalchemy import create_engine, exc, MetaData, Table as SQLTable
 from sqlalchemy.orm import Session
 
-from data import Namespace, Location, Address
+from vertebrate.data import Namespace, Location, Address
 
 
 class Table(Location):
