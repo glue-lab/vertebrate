@@ -17,8 +17,6 @@ class Environment(ABC):
         pass
 
     def __getitem__(self, key: str) -> "Action":
-        if key not in self:
-            raise KeyError(f"Item '{key}' not in {str(self)}")
         return Action(environment=self, executable=key)
 
 
@@ -38,3 +36,31 @@ class Action(object):
 
     def __call__(self, *args, **kwargs) -> Any:
         return self.environment.execute(self.executable, args, kwargs)
+
+
+class Command(object):
+
+    def __init__(
+        self,
+        action: Action,
+        args: tuple[Any, ...] = (),
+        kwargs: dict[str, Any] = {}
+    ) -> None:
+        self._action = action
+        self._args = args
+        self._kwargs = kwargs
+
+    @property
+    def action(self) -> Action:
+        return self._action
+
+    @property
+    def args(self) -> tuple[Any, ...]:
+        return self._args
+
+    @property
+    def kwargs(self) -> dict[str, Any]:
+        return self._kwargs
+
+    def __call__(self) -> Any:
+        return self.action(*self.args, **self.kwargs)
