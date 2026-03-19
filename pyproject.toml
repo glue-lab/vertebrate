@@ -39,6 +39,10 @@ transfers = [
   "SQLAlchemy>=2",
 ]
 
+dag = [
+  "networkx>=3",
+]
+
 htcondor = [
   "htcondor",
 ]
