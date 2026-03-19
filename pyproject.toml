@@ -32,6 +32,13 @@ tables = [
   "SQLAlchemy>=2",
 ]
 
+transfers = [
+  "networkx>=3",
+  "pandas>=3",
+  "pyarrow>=23",
+  "SQLAlchemy>=2",
+]
+
 htcondor = [
   "htcondor",
 ]
