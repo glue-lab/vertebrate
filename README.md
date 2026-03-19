@@ -21,6 +21,11 @@ use the built-in OS environment:
 python -m vertebrate.examples.os
 ```
 
+**NOTE:** Many of the examples create small files in your working directory.
+Examples are best run from a test folder.
+
+----
+
 Check out the built-in environment implementation for HTCondor! Installation:
 
 ```bash
