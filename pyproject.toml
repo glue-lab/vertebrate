@@ -48,6 +48,11 @@ luigi = [
   "luigi>=3",
 ]
 
+dagster = [
+  "networkx>=3",
+  "dagster>=1",
+]
+
 htcondor = [
   "htcondor",
 ]
