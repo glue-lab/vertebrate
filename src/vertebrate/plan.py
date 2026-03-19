@@ -39,6 +39,7 @@ class Orders(Namespace):
         pass
 
 
+# Should Plans be proper Environments? They are collections of executable Orders
 class Plan(ABC):
 
     def __init__(self, orders: Orders) -> None:

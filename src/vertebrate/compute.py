@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 
+# Should Environments be proper Namespaces? Some Locations can be executable
 class Environment(ABC):
 
     @abstractmethod
