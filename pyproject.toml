@@ -43,6 +43,11 @@ dag = [
   "networkx>=3",
 ]
 
+luigi = [
+  "networkx>=3",
+  "luigi>=3",
+]
+
 htcondor = [
   "htcondor",
 ]
