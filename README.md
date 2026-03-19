@@ -6,6 +6,13 @@ flow, we hope to make it something like an extension of
 [collections.abc](https://docs.python.org/3/library/collections.abc.html) for
 data-oriented projects.
 
+While the package contains built-in implementations for these interfaces, they are
+included as references to demonstrate usage of the main classes and are not intended to be
+definitive. You may find them useful, and you can use them if you wish, but we really
+hope that Vertebrate's main contribution is the "backbones" outlining general patterns for
+data processing that don't tightly couple with any given system or format. We encourage
+you to flesh them out in a way that works for you.
+
 ## Installation
 
 ```bash
