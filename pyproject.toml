@@ -10,7 +10,7 @@ name = "vertebrate"
 version = "0.2.0"
 description = "Open backbones for data architecture"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = { file = "LICENSE" }
 authors = [
   { name = "Matt Christie", email = "christiemj09@gmail.com" },
