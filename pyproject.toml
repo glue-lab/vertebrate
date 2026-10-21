@@ -62,5 +62,10 @@ Repository = "https://github.com/glue-lab/vertebrate"
 
 [dependency-groups]
 dev = [
-  "ruff",
+  "ruff>=0.17",
 ]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "RUF"]
+# Deferred to the typing step: mutable defaults in signatures, ClassVar registries
+ignore = ["B006", "RUF012"]
