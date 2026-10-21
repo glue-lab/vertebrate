@@ -59,3 +59,8 @@ htcondor = [
 
 [project.urls]
 Repository = "https://github.com/glue-lab/vertebrate"
+
+[dependency-groups]
+dev = [
+  "ruff",
+]
