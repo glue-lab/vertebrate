@@ -3,7 +3,6 @@ ABCs for planning/orchestration.
 """
 
 from abc import ABC, abstractmethod
-from typing import Type
 
 from vertebrate.compute import Command, Environment
 from vertebrate.data import Address, Location, Namespace
@@ -28,7 +27,7 @@ class Order(Location):
 class Orders(Namespace):
     @property
     @abstractmethod
-    def LocationType(self) -> Type[Order]:
+    def LocationType(self) -> type[Order]:
         pass
 
     @abstractmethod

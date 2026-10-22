@@ -2,7 +2,8 @@
 An implementation of a variable namespace.
 """
 
-from typing import Any, Type
+import builtins
+from typing import Any
 from uuid import uuid4
 
 from vertebrate.data import (
@@ -34,7 +35,7 @@ class Dictionary(Namespace, Temporary):
         return type(self.dict_[address])
 
     @property
-    def LocationType(self) -> Type[Location]:
+    def LocationType(self) -> builtins.type[Location]:
         return Value
 
     def __contains__(self, address: Address) -> bool:

@@ -2,8 +2,9 @@
 An implementation of a file namespace.
 """
 
+import builtins
 from pathlib import Path
-from typing import IO, Type
+from typing import IO
 
 from vertebrate.data import Address, Location, Namespace
 
@@ -70,7 +71,7 @@ class FileSystem(Namespace):
             return bytes
 
     @property
-    def LocationType(self) -> Type[Location]:
+    def LocationType(self) -> builtins.type[Location]:
         return File
 
     def __contains__(self, address: Address) -> bool:

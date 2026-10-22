@@ -2,7 +2,7 @@
 An implementation of a table namespace.
 """
 
-from typing import Type
+import builtins
 
 from sqlalchemy import MetaData, create_engine, exc
 from sqlalchemy import Table as SQLTable
@@ -29,7 +29,7 @@ class Database(Namespace):
         return SQLTable
 
     @property
-    def LocationType(self) -> Type[Location]:
+    def LocationType(self) -> builtins.type[Location]:
         return Table
 
     def __contains__(self, address: Address) -> bool:

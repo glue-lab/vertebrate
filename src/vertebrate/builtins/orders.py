@@ -2,7 +2,8 @@
 A simple implementation of an order namespace.
 """
 
-from typing import Any, Type
+import builtins
+from typing import Any
 
 from vertebrate.builtins.os import OSEnvironment
 from vertebrate.builtins.python import PythonEnvironment
@@ -45,7 +46,7 @@ class SimpleOrders(Orders):
         raise NotImplementedError("Deletion not implemented for SimpleOrders")
 
     @property
-    def LocationType(self) -> Type[Order]:
+    def LocationType(self) -> builtins.type[Order]:
         return SimpleOrder
 
     def PythonEnvironment(self) -> PythonEnvironment:

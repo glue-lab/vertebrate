@@ -2,10 +2,10 @@
 ABCs for data transfer.
 """
 
+import builtins
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from types import TracebackType
-from typing import Type
 
 type Address = str
 
@@ -15,6 +15,7 @@ class Namespace(ABC):
     A typed collection of locations where data resides.
     """
 
+    # Rename (e.g. `datatype`)? Shadows `type` in class bodies, hence `builtins.type`
     @abstractmethod
     def type(self, address: Address) -> type | None:
         pass
@@ -29,7 +30,7 @@ class Namespace(ABC):
 
     @property
     @abstractmethod
-    def LocationType(self) -> Type["Location"]:
+    def LocationType(self) -> builtins.type["Location"]:
         pass
 
     def __getitem__(self, address: Address) -> "Location":
