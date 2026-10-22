@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     print("++ Contents of the 'restored' variable")
     print("print(restored)")
-    print(restored)
+    print(restored)  # noqa: F821
     print()
 
     print("++ Define some example tabular data in a Pandas DataFrame")
