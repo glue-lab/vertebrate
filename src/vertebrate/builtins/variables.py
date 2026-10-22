@@ -15,7 +15,6 @@ from vertebrate.data import (
 
 
 class Value(Location):
-
     def get(self) -> Any:
         return self.namespace.dict_[self.address]
 
@@ -28,7 +27,6 @@ class TemporaryValue(Value, TemporaryLocation):
 
 
 class Dictionary(Namespace, Temporary):
-
     def __init__(self, dict_: dict[str, Any]):
         self.dict_ = dict_
 

@@ -20,23 +20,35 @@ TOML = "toml"
 
 
 class CSV: ...
+
+
 class JSON: ...
+
+
 class JSONLINES: ...
+
+
 class YAML: ...
+
+
 class PARQUET: ...
+
+
 class XML: ...
+
+
 class HTML: ...
+
+
 class TOML: ...
 
 
 class File(Location):
-
     def open(self, *args, **kwargs) -> IO:
         return open(self.address, *args, **kwargs)
 
 
 class FileSystem(Namespace):
-
     extensions = {
         ".csv": CSV,
         ".json": JSON,

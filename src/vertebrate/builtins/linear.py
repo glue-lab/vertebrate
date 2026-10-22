@@ -17,7 +17,6 @@ logging.basicConfig(
 
 
 class LinearPlan(DAGPlan):
-
     def make(self, address: Address) -> None:
         for order_name in self._plan(address):
             logging.info(f"Satisfying {order_name}")

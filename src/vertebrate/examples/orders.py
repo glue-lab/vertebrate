@@ -31,5 +31,5 @@ specs = {
         "exe": "read_file",
         "args": ["file2.txt"],
         "requirements": ["copy"],
-    }
+    },
 }

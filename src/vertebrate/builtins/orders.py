@@ -12,7 +12,6 @@ from vertebrate.plan import Order, Orders
 
 
 class SimpleOrder(Order):
-
     @property
     def info(self) -> dict[str, Any]:
         return self.namespace.spec[self.address]
@@ -29,7 +28,6 @@ class SimpleOrder(Order):
 
 
 class SimpleOrders(Orders):
-
     def __init__(self, spec: dict[str, Any], pyenv: PythonEnvironment) -> None:
         self.spec = spec
         self.pyenv = pyenv

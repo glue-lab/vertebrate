@@ -57,9 +57,9 @@ class HTCondorEnvironment(Environment):
             time.sleep(self.poll_secs)
             ads = self.access_point.query(
                 f"ClusterID == {submit_object.cluster()}",
-                projection = ["ProcID", "JobStatus"],
+                projection=["ProcID", "JobStatus"],
             )
-            done = all(i['JobStatus'] == HTCondorEnvironment.DONE for i in ads)
+            done = all(i["JobStatus"] == HTCondorEnvironment.DONE for i in ads)
 
     def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
         kwargs["executable"] = executable

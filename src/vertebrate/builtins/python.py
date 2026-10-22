@@ -10,7 +10,6 @@ from vertebrate.compute import Environment
 
 @runtime_checkable
 class WithAttributes(Protocol):
-
     __dict__: dict[str, Any]
 
 

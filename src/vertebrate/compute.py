@@ -8,7 +8,6 @@ from typing import Any
 
 # Should Environments be proper Namespaces? Some Locations can be executable
 class Environment(ABC):
-
     @abstractmethod
     def execute(self, executable: str, args: tuple[Any], kwargs: dict[str, Any]) -> Any:
         pass
@@ -22,7 +21,6 @@ class Environment(ABC):
 
 
 class Action(object):
-
     def __init__(self, environment: Environment, executable: str) -> None:
         self._env = environment
         self._exe = executable
@@ -40,12 +38,8 @@ class Action(object):
 
 
 class Command(object):
-
     def __init__(
-        self,
-        action: Action,
-        args: tuple[Any, ...] = (),
-        kwargs: dict[str, Any] = {}
+        self, action: Action, args: tuple[Any, ...] = (), kwargs: dict[str, Any] = {}
     ) -> None:
         self._action = action
         self._args = args

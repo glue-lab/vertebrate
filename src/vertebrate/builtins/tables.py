@@ -12,7 +12,6 @@ from vertebrate.data import Namespace, Location, Address
 
 
 class Table(Location):
-
     def __call__(self):
         return SQLTable(
             self.address,
@@ -22,7 +21,6 @@ class Table(Location):
 
 
 class Database(Namespace):
-
     def __init__(self, db_url: str, *args, **kwargs) -> None:
         self.engine = create_engine(db_url, *args, **kwargs)
         self.meta = MetaData()

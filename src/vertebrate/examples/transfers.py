@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     print("++ Write example data to file as JSON")
     print('-> (variables["data"] >> files["output/data.json"])()')
-    print('NOTE: This creates example.json in your working directory')
+    print("NOTE: This creates example.json in your working directory")
     (variables["data"] >> files["example.json"])()
     print()
 
@@ -53,7 +53,9 @@ if __name__ == "__main__":
     print()
 
     print("++ Define some example tabular data in a Pandas DataFrame")
-    print('-> example = DataFrame({"a": ["Athabasca"], "b": ["Bosphorus"], "c": ["Cerulean"]})')
+    print(
+        '-> example = DataFrame({"a": ["Athabasca"], "b": ["Bosphorus"], "c": ["Cerulean"]})'
+    )
     example = DataFrame({"a": ["Athabasca"], "b": ["Bosphorus"], "c": ["Cerulean"]})
     print()
 
