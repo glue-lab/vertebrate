@@ -53,7 +53,8 @@ if __name__ == "__main__":
 
     print("++ Define some example tabular data in a Pandas DataFrame")
     print(
-        '-> example = DataFrame({"a": ["Athabasca"], "b": ["Bosphorus"], "c": ["Cerulean"]})'
+        "-> example = DataFrame("
+        '{"a": ["Athabasca"], "b": ["Bosphorus"], "c": ["Cerulean"]})'
     )
     example = DataFrame({"a": ["Athabasca"], "b": ["Bosphorus"], "c": ["Cerulean"]})
     print()
