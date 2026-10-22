@@ -13,7 +13,7 @@ def subtract(a: Numeric, b: Numeric) -> Numeric:
     return a - b
 
 
-class AddTo(object):
+class AddTo:
     def __init__(self, x: Numeric):
         self.x = x
 

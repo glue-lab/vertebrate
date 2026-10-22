@@ -47,7 +47,7 @@ class Temporary(ABC):
         pass
 
 
-class Location(object):
+class Location:
     """
     A location that data can be read from and written to.
     The exact semantics of its read and write operations differ
@@ -119,7 +119,7 @@ class Transfers(ABC):
         pass
 
 
-class Transfer(object):
+class Transfer:
     """
     A transfer of data from one location to another.
     """

@@ -20,7 +20,7 @@ class Environment(ABC):
         return Action(environment=self, executable=key)
 
 
-class Action(object):
+class Action:
     def __init__(self, environment: Environment, executable: str) -> None:
         self._env = environment
         self._exe = executable
@@ -37,7 +37,7 @@ class Action(object):
         return self.environment.execute(self.executable, args, kwargs)
 
 
-class Command(object):
+class Command:
     def __init__(
         self, action: Action, args: tuple[Any, ...] = (), kwargs: dict[str, Any] = {}
     ) -> None:
