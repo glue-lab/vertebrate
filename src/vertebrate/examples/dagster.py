@@ -19,7 +19,7 @@ def main():
     print()
 
     print("++ Initialize a Dagster-based execution plan")
-    print("-> plan = Dagster(orders)")
+    print("-> plan = DagsterPlan(orders)")
     plan = DagsterPlan(orders)
     print()
 

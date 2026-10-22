@@ -21,7 +21,7 @@ if __name__ == "__main__":
     print()
 
     print("++ Get a reference to this module's variable namespace")
-    print("-> variables = Dictionary(locals())")
+    print("-> variables = Dictionary(globals())")
     variables = Dictionary(globals())
     print()
 
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     print()
 
     print("++ Write example data to file as JSON")
-    print('-> (variables["data"] >> files["output/data.json"])()')
+    print('-> (variables["data"] >> files["example.json"])()')
     print("NOTE: This creates example.json in your working directory")
     (variables["data"] >> files["example.json"])()
     print()
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     print()
 
     print("++ Contents of the 'restored' variable")
-    print("print(restored)")
+    print("-> print(restored)")
     print(restored)  # noqa: F821
     print()
 
