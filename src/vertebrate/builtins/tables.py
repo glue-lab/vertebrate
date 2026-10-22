@@ -24,7 +24,7 @@ class Database(Namespace):
         self.engine = create_engine(db_url, *args, **kwargs)
         self.meta = MetaData()
 
-    def type(self, address: Address) -> type:
+    def type(self, address: Address) -> builtins.type:
         # Rudimentary table typing
         return SQLTable
 

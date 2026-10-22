@@ -63,7 +63,7 @@ class FileSystem(Namespace):
         ".toml": TOML,
     }
 
-    def type(self, address: Address) -> type:
+    def type(self, address: Address) -> builtins.type:
         ext = Path(address).suffix
         if ext in self.extensions:
             return self.extensions[ext]

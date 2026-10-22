@@ -31,7 +31,7 @@ class Dictionary(Namespace, Temporary):
     def __init__(self, dict_: dict[str, Any]):
         self.dict_ = dict_
 
-    def type(self, address: Address) -> type:
+    def type(self, address: Address) -> builtins.type:
         return type(self.dict_[address])
 
     @property

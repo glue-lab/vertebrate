@@ -17,7 +17,7 @@ class Namespace(ABC):
 
     # Rename (e.g. `datatype`)? Shadows `type` in class bodies, hence `builtins.type`
     @abstractmethod
-    def type(self, address: Address) -> type | None:
+    def type(self, address: Address) -> builtins.type | None:
         pass
 
     @abstractmethod
@@ -67,7 +67,7 @@ class Location(object):
         return self._address
 
     @property
-    def type(self) -> type:
+    def type(self) -> builtins.type:
         return self.namespace.type(self.address)
 
     def __rshift__(self, loc: "Location") -> "Transfer":

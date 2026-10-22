@@ -34,7 +34,7 @@ class SimpleOrders(Orders):
         self.pyenv = pyenv
         self.osenv = OSEnvironment()
 
-    def type(self, address: Address) -> type | None:
+    def type(self, address: Address) -> builtins.type | None:
         # No meaningful notion of order type for now
         if address in self:
             return Order
