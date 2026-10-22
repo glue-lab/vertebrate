@@ -2,7 +2,6 @@
 Implementations of ABCs using pure Python.
 """
 
-import sys
 from typing import Any, Protocol, runtime_checkable
 
 from vertebrate.compute import Environment

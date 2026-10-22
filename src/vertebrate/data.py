@@ -5,7 +5,7 @@ ABCs for data transfer.
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from types import TracebackType
-from typing import Any, Type
+from typing import Type
 
 type Address = str
 

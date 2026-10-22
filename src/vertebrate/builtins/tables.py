@@ -2,12 +2,10 @@
 An implementation of a table namespace.
 """
 
-from contextlib import closing
 from typing import Type
 
 from sqlalchemy import MetaData, create_engine, exc
 from sqlalchemy import Table as SQLTable
-from sqlalchemy.orm import Session
 
 from vertebrate.data import Address, Location, Namespace
 

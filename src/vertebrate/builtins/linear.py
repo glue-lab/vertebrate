@@ -3,7 +3,6 @@ Implementation of a Plan that executes orders linearly.
 """
 
 import logging
-from collections.abc import Iterator
 
 from vertebrate.builtins.dag import DAGPlan
 from vertebrate.data import Address

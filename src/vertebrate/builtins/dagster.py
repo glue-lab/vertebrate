@@ -2,14 +2,11 @@
 Implementation of a Plan that uses the Dagster framework for orchestration.
 """
 
-import re
-
 import dagster as dg
 
 from vertebrate.builtins.dag import DAGPlan
 from vertebrate.builtins.utils import format_address
 from vertebrate.data import Address
-from vertebrate.plan import Orders
 
 
 class DagsterPlan(DAGPlan):
