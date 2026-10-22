@@ -9,7 +9,7 @@ def populate_file(path: str, content: str) -> None:
 
 
 def read_file(path: str) -> None:
-    with open(path, "r") as file_in:
+    with open(path) as file_in:
         print(file_in.read())
 
 
