@@ -34,7 +34,7 @@ class Database(Namespace):
 
     def __contains__(self, address: Address) -> bool:
         try:
-            table = self[address]()
+            self[address]()
             return True
         except exc.NoSuchTableError:
             return False

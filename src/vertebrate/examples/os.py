@@ -15,7 +15,7 @@ def main():
     print()
 
     print('++ Execute `ls -l .` -> ls("-l", ".")')
-    print(local_machine["ls"]("-l", ".").decode("utf-8"))
+    print(ls("-l", ".").decode("utf-8"))
     # ^^ Return type is bytes
     print()
 
