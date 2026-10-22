@@ -10,7 +10,6 @@ import networkx as nx
 from vertebrate.data import Address
 from vertebrate.plan import Plan
 
-
 type DAG = dict[Address, list[Address]]
 type Edge = tuple[Address, Address]
 

@@ -5,10 +5,11 @@ An implementation of a table namespace.
 from contextlib import closing
 from typing import Type
 
-from sqlalchemy import create_engine, exc, MetaData, Table as SQLTable
+from sqlalchemy import MetaData, create_engine, exc
+from sqlalchemy import Table as SQLTable
 from sqlalchemy.orm import Session
 
-from vertebrate.data import Namespace, Location, Address
+from vertebrate.data import Address, Location, Namespace
 
 
 class Table(Location):

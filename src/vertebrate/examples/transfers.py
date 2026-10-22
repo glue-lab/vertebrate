@@ -10,7 +10,6 @@ from vertebrate.builtins.transfers import ExplicitTransfers, PathTransfers
 from vertebrate.builtins.variables import Dictionary
 from vertebrate.data import Transfer
 
-
 if __name__ == "__main__":
     print("++ NOTE: This example requires the 'transfers' extra dependency group")
     print("-> pip install vertebrate[transfers]")

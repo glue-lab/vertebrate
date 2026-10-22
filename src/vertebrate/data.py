@@ -7,7 +7,6 @@ from collections.abc import Callable
 from types import TracebackType
 from typing import Any, Type
 
-
 type Address = str
 
 

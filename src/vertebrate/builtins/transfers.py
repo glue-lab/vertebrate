@@ -6,17 +6,16 @@ import networkx as nx
 from pandas import DataFrame
 from sqlalchemy import Table
 
-from vertebrate.builtins.files import File, CSV, JSON, PARQUET
+from vertebrate.builtins.files import CSV, JSON, PARQUET, File
 from vertebrate.builtins.variables import Dictionary, Value
 from vertebrate.data import (
-    Namespace,
     Location,
     LocationTypes,
+    Namespace,
     TemporaryLocation,
-    Transfers,
     TransferImplementation,
+    Transfers,
 )
-
 
 ### Transfer implementations
 

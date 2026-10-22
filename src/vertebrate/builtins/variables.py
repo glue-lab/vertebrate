@@ -6,9 +6,9 @@ from typing import Any, Type
 from uuid import uuid4
 
 from vertebrate.data import (
-    Namespace,
-    Location,
     Address,
+    Location,
+    Namespace,
     Temporary,
     TemporaryLocation,
 )

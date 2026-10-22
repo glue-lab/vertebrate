@@ -4,7 +4,7 @@ Implementation of a PostgreSQL database as an execution environment.
 
 from typing import Any
 
-from sqlalchemy import create_engine, Engine, MetaData, Table
+from sqlalchemy import Engine, MetaData, Table, create_engine
 from sqlalchemy.sql import and_, func, functions, quoted_name, select
 
 from vertebrate.compute import Environment

@@ -2,12 +2,11 @@
 Implementation of a Plan that executes orders linearly.
 """
 
-from collections.abc import Iterator
 import logging
+from collections.abc import Iterator
 
 from vertebrate.builtins.dag import DAGPlan
 from vertebrate.data import Address
-
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s: %(message)s",

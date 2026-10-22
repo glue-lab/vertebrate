@@ -6,7 +6,6 @@ import sys
 
 from vertebrate.builtins.python import PythonEnvironment
 
-
 type Numeric = int | float
 
 

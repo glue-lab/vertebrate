@@ -4,8 +4,8 @@ A simple implementation of an order namespace.
 
 from typing import Any, Type
 
-from vertebrate.builtins.python import PythonEnvironment
 from vertebrate.builtins.os import OSEnvironment
+from vertebrate.builtins.python import PythonEnvironment
 from vertebrate.compute import Command, Environment
 from vertebrate.data import Address
 from vertebrate.plan import Order, Orders
