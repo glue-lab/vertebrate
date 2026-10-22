@@ -49,7 +49,7 @@ class PSQLEnvironment(Environment):
         kwargs: dict = {},
     ) -> Any:
         completed = subprocess.run(
-            (self.psql,) + self._connection_args() + ("-f", executable),
+            (self.psql, *self._connection_args(), "-f", executable),
             env=kwargs,
             capture_output=True,
         )

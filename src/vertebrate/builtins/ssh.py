@@ -22,7 +22,7 @@ class SSHEnvironment(Environment):
 
     def _exec_ssh(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
         completed = subprocess.run(
-            ("ssh", f"{self.user}@{self.host}", executable) + args,
+            ("ssh", f"{self.user}@{self.host}", executable, *args),
             capture_output=True,
         )
         return completed.stdout
