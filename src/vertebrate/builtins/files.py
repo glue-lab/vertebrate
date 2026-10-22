@@ -8,17 +8,8 @@ from typing import IO
 
 from vertebrate.data import Address, Location, Namespace
 
+
 # Datatypes that will be inferred by file extension
-CSV = "csv"
-JSON = "json"
-JSONLINES = "jsonl"
-YAML = "yaml"
-PARQUET = "parquet"
-XML = "xml"
-HTML = "html"
-TOML = "toml"
-
-
 class CSV: ...
 
 
