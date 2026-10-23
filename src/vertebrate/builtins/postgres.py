@@ -2,12 +2,16 @@
 Implementation of a PostgreSQL database as an execution environment.
 """
 
+import string
 from typing import Any
 
 from sqlalchemy import create_engine, Engine, MetaData, Table
 from sqlalchemy.sql import and_, func, functions, quoted_name, select
 
 from vertebrate.compute import Environment
+
+
+ASCII_LOWERCASE = str.maketrans(string.ascii_uppercase, string.ascii_lowercase)
 
 
 class PostgresEnvironment(Environment):
@@ -37,24 +41,38 @@ class PostgresEnvironment(Environment):
 
     @staticmethod
     def _identifier_name(id_name: str) -> str:
-        if not id_name:
-            return id_name
-        if id_name.startswith('"'):
-            return id_name.strip('"')
-        else:
-            return id_name.lower()
+        # As PostgreSQL resolves one: quoted is literal, unquoted folds only A-Z
+        if len(id_name) >= 2 and id_name[0] == id_name[-1] == '"':
+            quoted = id_name[1:-1]
+            if quoted and '"' not in quoted.replace('""', ""):
+                return quoted.replace('""', '"')
+        elif id_name and '"' not in id_name:
+            return id_name.translate(ASCII_LOWERCASE)
+        raise ValueError(f"Invalid identifier: {id_name!r}")
+
+    @staticmethod
+    def _split_qualified(exec_name: str) -> list[str]:
+        parts, current, quoted = [], "", False
+        for char in exec_name:
+            if char == '"':
+                quoted = not quoted
+            if char == "." and not quoted:
+                parts.append(current)
+                current = ""
+            else:
+                current += char
+        parts.append(current)
+        return parts
 
     @classmethod
-    def _parse_exec_name(cls, exec_name: str) -> dict[str, str]:
-
-        # Extract schema name from executable name if present
-        schema_name = None
-        if "." in exec_name:
-            schema_name, exec_name = exec_name.split(".")
-
+    def _parse_exec_name(cls, exec_name: str) -> dict[str, str | None]:
+        parts = cls._split_qualified(exec_name)
+        if len(parts) > 2:
+            raise ValueError(f"Expected [schema.]name, got {exec_name!r}")
+        *schema, name = parts
         return {
-            "schema": cls._identifier_name(schema_name),
-            "name": cls._identifier_name(exec_name),
+            "schema": cls._identifier_name(schema[0]) if schema else None,
+            "name": cls._identifier_name(name),
         }
 
     def _pg_proc(self) -> Table:
