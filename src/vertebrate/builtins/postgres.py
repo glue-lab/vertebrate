@@ -3,9 +3,20 @@ Implementation of a PostgreSQL database as an execution environment.
 """
 
 import string
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import Any
 
-from sqlalchemy import create_engine, Engine, MetaData, Table, TextClause, text
+from sqlalchemy import (
+    create_engine,
+    Connection,
+    Engine,
+    MetaData,
+    Table,
+    TextClause,
+    text,
+)
+from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import and_, func, select
 
 from vertebrate.compute import Environment
@@ -22,22 +33,18 @@ class PostgresEnvironment(Environment):
     @staticmethod
     def _postgres_engine(user: str, dbname: str, host: str, port: str) -> Engine:
         url = f"postgresql+psycopg2://{user}@{host}:{port}/{dbname}"
-        return create_engine(url, echo=False)
+        # NullPool: a released connection is closed rather than kept in reserve
+        return create_engine(url, echo=False, poolclass=NullPool)
 
     def __init__(self, user: str, dbname: str, host: str, port: str) -> None:
         self.engine = self._postgres_engine(user, dbname, host, port)
         self.meta = MetaData()
-        self.conn = self.engine.connect()
 
-    def __enter__(self):
-        self.trans = self.conn.begin()
-        return self
-
-    def __exit__(self, type_, value, traceback):
-        if type_:
-            self.trans.rollback()
-        else:
-            self.trans.commit()
+    @contextmanager
+    def _session(self) -> Iterator[Connection]:
+        # A connection for one piece of work, in one transaction, closed after
+        with self.engine.connect() as conn, conn.begin():
+            yield conn
 
     @staticmethod
     def _identifier_name(id_name: str) -> str:
@@ -91,10 +98,10 @@ class PostgresEnvironment(Environment):
             schema="pg_catalog",
         )
 
-    def _contains_unqualified(self, exec_name: str) -> bool:
+    def _contains_unqualified(self, conn: Connection, exec_name: str) -> bool:
         p = self._pg_proc()
         n = self._pg_namespace()
-        num_items = self.conn.execute(
+        num_items = conn.execute(
             select(func.count()).\
             where(and_(
                 p.c.proname == exec_name,
@@ -104,10 +111,12 @@ class PostgresEnvironment(Environment):
         ).scalar_one()
         return num_items > 0
 
-    def _contains_qualified(self, schema_name: str, exec_name: str) -> bool:
+    def _contains_qualified(
+        self, conn: Connection, schema_name: str, exec_name: str
+    ) -> bool:
         p = self._pg_proc()
         n = self._pg_namespace()
-        num_items = self.conn.execute(
+        num_items = conn.execute(
             select(func.count()).\
             where(and_(
                 p.c.proname == exec_name,
@@ -119,11 +128,11 @@ class PostgresEnvironment(Environment):
 
     def __contains__(self, item: str) -> bool:
         info = self._parse_exec_name(item)
-        with self:
+        with self._session() as conn:
             if info["schema"] is None:
-                return self._contains_unqualified(info["name"])
+                return self._contains_unqualified(conn, info["name"])
             else:
-                return self._contains_qualified(info["schema"], info["name"])
+                return self._contains_qualified(conn, info["schema"], info["name"])
 
     @staticmethod
     def _quote_identifier(id_name: str) -> str:
@@ -140,6 +149,6 @@ class PostgresEnvironment(Environment):
         return text(f"SELECT {qualified}({placeholders})").bindparams(**params)
 
     def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
-        with self:
-            result = self.conn.execute(self._sql_call(executable, args))
-            return result
+        with self._session() as conn:
+            # Detached from the connection, which closes when the session ends
+            return conn.execute(self._sql_call(executable, args)).freeze()()
