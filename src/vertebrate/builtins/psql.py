@@ -3,6 +3,7 @@ Implementation of a PSQL execution environment.
 """
 
 import os
+import shutil
 import subprocess
 from typing import Any
 
@@ -14,17 +15,24 @@ class PSQLEnvironment(Environment):
     Execute psql invocations with connection info passed as arguments.
     """
 
-    def __init__(self, user: str, dbname: str, host: str, port: str):
+    def __init__(
+        self,
+        user: str,
+        dbname: str,
+        host: str,
+        port: str,
+        options: tuple[str, ...] = ("-v", "ON_ERROR_STOP=1", "--single-transaction"),
+    ) -> None:
         self.user = user
         self.dbname = dbname
         self.host = host
         self.port = port
+        self.options = options
         self.psql = self._find_psql_on_path()
 
-    def _find_psql_on_path(self):
-        completed = subprocess.run(("which", "psql"), env=os.environ, capture_output=True)
-        psql_path = completed.stdout.decode('utf-8').strip()
-        if psql_path == '':
+    def _find_psql_on_path(self) -> str:
+        psql_path = shutil.which("psql")
+        if psql_path is None:
             raise ValueError("psql not found on PATH")
         return psql_path
 
@@ -42,10 +50,23 @@ class PSQLEnvironment(Environment):
         args: tuple = (),
         kwargs: dict = {},
     ) -> Any:
-        completed = subprocess.run(
-            (self.psql,) + self._connection_args() + ("-f", executable),
-            env=kwargs, capture_output=True
-        )
+        if executable not in self:
+            raise KeyError(f"Executable not found: {executable}")
+        try:
+            completed = subprocess.run(
+                (self.psql,)
+                + self._connection_args()
+                + self.options
+                + args
+                + ("-f", executable),
+                env={**os.environ, **kwargs},
+                capture_output=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError as error:
+            if error.stderr:
+                error.add_note(error.stderr.decode("utf-8", errors="replace"))
+            raise
         return completed.stdout.decode("utf-8")
 
     def __contains__(self, item: str) -> bool:

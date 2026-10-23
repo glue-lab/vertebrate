@@ -2,12 +2,27 @@
 Implementation of a PostgreSQL database as an execution environment.
 """
 
+import string
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import Any
 
-from sqlalchemy import create_engine, Engine, MetaData, Table
-from sqlalchemy.sql import and_, func, functions, quoted_name, select
+from sqlalchemy import (
+    create_engine,
+    Connection,
+    Engine,
+    MetaData,
+    Table,
+    TextClause,
+    text,
+)
+from sqlalchemy.pool import NullPool
+from sqlalchemy.sql import and_, func, select
 
 from vertebrate.compute import Environment
+
+
+ASCII_LOWERCASE = str.maketrans(string.ascii_uppercase, string.ascii_lowercase)
 
 
 class PostgresEnvironment(Environment):
@@ -18,43 +33,53 @@ class PostgresEnvironment(Environment):
     @staticmethod
     def _postgres_engine(user: str, dbname: str, host: str, port: str) -> Engine:
         url = f"postgresql+psycopg2://{user}@{host}:{port}/{dbname}"
-        return create_engine(url, echo=False)
+        # NullPool: a released connection is closed rather than kept in reserve
+        return create_engine(url, echo=False, poolclass=NullPool)
 
     def __init__(self, user: str, dbname: str, host: str, port: str) -> None:
-        self.engine = PostgresEnvironment._postgres_engine(user, dbname, host, port)
+        self.engine = self._postgres_engine(user, dbname, host, port)
         self.meta = MetaData()
-        self.conn = self.engine.connect()
 
-    def __enter__(self):
-        self.trans = self.conn.begin()
-        return self
-
-    def __exit__(self, type_, value, traceback):
-        if type_:
-            self.trans.rollback()
-        else:
-            self.trans.commit()
+    @contextmanager
+    def _session(self) -> Iterator[Connection]:
+        # A connection for one piece of work, in one transaction, closed after
+        with self.engine.connect() as conn, conn.begin():
+            yield conn
 
     @staticmethod
     def _identifier_name(id_name: str) -> str:
-        if not id_name:
-            return id_name
-        if id_name.startswith('"'):
-            return id_name.strip('"')
-        else:
-            return id_name.lower()
+        # As PostgreSQL resolves one: quoted is literal, unquoted folds only A-Z
+        if len(id_name) >= 2 and id_name[0] == id_name[-1] == '"':
+            quoted = id_name[1:-1]
+            if quoted and '"' not in quoted.replace('""', ""):
+                return quoted.replace('""', '"')
+        elif id_name and '"' not in id_name:
+            return id_name.translate(ASCII_LOWERCASE)
+        raise ValueError(f"Invalid identifier: {id_name!r}")
 
     @staticmethod
-    def _parse_exec_name(exec_name: str) -> dict[str, str]:
+    def _split_qualified(exec_name: str) -> list[str]:
+        parts, current, quoted = [], "", False
+        for char in exec_name:
+            if char == '"':
+                quoted = not quoted
+            if char == "." and not quoted:
+                parts.append(current)
+                current = ""
+            else:
+                current += char
+        parts.append(current)
+        return parts
 
-        # Extract schema name from executable name if present
-        schema_name = None
-        if "." in exec_name:
-            schema_name, exec_name = exec_name.split(".")
-
+    @classmethod
+    def _parse_exec_name(cls, exec_name: str) -> dict[str, str | None]:
+        parts = cls._split_qualified(exec_name)
+        if len(parts) > 2:
+            raise ValueError(f"Expected [schema.]name, got {exec_name!r}")
+        *schema, name = parts
         return {
-            "schema": PostgresEnvironment._identifier_name(schema_name),
-            "name": PostgresEnvironment._identifier_name(exec_name),
+            "schema": cls._identifier_name(schema[0]) if schema else None,
+            "name": cls._identifier_name(name),
         }
 
     def _pg_proc(self) -> Table:
@@ -73,10 +98,10 @@ class PostgresEnvironment(Environment):
             schema="pg_catalog",
         )
 
-    def _contains_unqualified(self, exec_name: str) -> bool:
+    def _contains_unqualified(self, conn: Connection, exec_name: str) -> bool:
         p = self._pg_proc()
         n = self._pg_namespace()
-        num_items = self.conn.execute(
+        num_items = conn.execute(
             select(func.count()).\
             where(and_(
                 p.c.proname == exec_name,
@@ -86,10 +111,12 @@ class PostgresEnvironment(Environment):
         ).scalar_one()
         return num_items > 0
 
-    def _contains_qualified(self, schema_name: str, exec_name: str) -> bool:
+    def _contains_qualified(
+        self, conn: Connection, schema_name: str, exec_name: str
+    ) -> bool:
         p = self._pg_proc()
         n = self._pg_namespace()
-        num_items = self.conn.execute(
+        num_items = conn.execute(
             select(func.count()).\
             where(and_(
                 p.c.proname == exec_name,
@@ -100,26 +127,28 @@ class PostgresEnvironment(Environment):
         return num_items > 0
 
     def __contains__(self, item: str) -> bool:
-        info = PostgresEnvironment._parse_exec_name(item)
-        with self:
+        info = self._parse_exec_name(item)
+        with self._session() as conn:
             if info["schema"] is None:
-                return self._contains_unqualified(info["name"])
+                return self._contains_unqualified(conn, info["name"])
             else:
-                return self._contains_qualified(info["schema"], info["name"])
+                return self._contains_qualified(conn, info["schema"], info["name"])
 
     @staticmethod
-    def _sql_call(executable: str) -> functions._FunctionGenerator:
-        info = PostgresEnvironment._parse_exec_name(executable)
-        if info["schema"] is None:
-            sql_call = getattr(func, quoted_name(info["name"], quote=True))
-        else:
-            sql_schema = getattr(func, quoted_name(info["schema"], quote=True))
-            sql_call = getattr(sql_schema, quoted_name(info["name"], quote=True))
-        return sql_call        
+    def _quote_identifier(id_name: str) -> str:
+        # Colons are escaped so text() doesn't read them as bind parameters
+        return '"' + id_name.replace('"', '""').replace(":", "\\:") + '"'
+
+    @classmethod
+    def _sql_call(cls, executable: str, args: tuple) -> TextClause:
+        info = cls._parse_exec_name(executable)
+        parts = [info["schema"], info["name"]]
+        qualified = ".".join(cls._quote_identifier(p) for p in parts if p is not None)
+        params = {f"arg{i}": arg for i, arg in enumerate(args)}
+        placeholders = ", ".join(f":{key}" for key in params)
+        return text(f"SELECT {qualified}({placeholders})").bindparams(**params)
 
     def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
-        with self:
-            result = self.conn.execute(
-                select(PostgresEnvironment._sql_call(executable)(*args))
-            )
-            return result
+        with self._session() as conn:
+            # Detached from the connection, which closes when the session ends
+            return conn.execute(self._sql_call(executable, args)).freeze()()
