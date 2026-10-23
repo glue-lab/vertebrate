@@ -3,6 +3,7 @@ Implementations of ABCs that use the operating system directly
 (ex. processes, files, sockets, etc.).
 """
 
+import os
 import shutil
 import subprocess
 from typing import Any
@@ -23,5 +24,9 @@ class OSEnvironment(Environment):
 
     def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
         exe_path = self._exe_path(executable)
-        completed = subprocess.run((exe_path,) + args, env=kwargs, capture_output=True)
+        completed = subprocess.run(
+            (exe_path,) + args,
+            env={**os.environ, **kwargs},
+            capture_output=True,
+        )
         return completed.stdout
