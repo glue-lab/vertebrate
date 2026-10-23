@@ -21,7 +21,7 @@ class PSQLEnvironment(Environment):
         dbname: str,
         host: str,
         port: str,
-        options: tuple[str, ...] = (),
+        options: tuple[str, ...] = ("-v", "ON_ERROR_STOP=1", "--single-transaction"),
     ) -> None:
         self.user = user
         self.dbname = dbname
