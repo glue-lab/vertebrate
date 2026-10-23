@@ -48,7 +48,7 @@ class PSQLEnvironment(Environment):
     ) -> Any:
         completed = subprocess.run(
             (self.psql, *self._connection_args(), "-f", executable),
-            env=kwargs,
+            env={**os.environ, **kwargs},
             capture_output=True,
         )
         return completed.stdout.decode("utf-8")
