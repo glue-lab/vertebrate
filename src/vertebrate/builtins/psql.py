@@ -3,6 +3,7 @@ Implementation of a PSQL execution environment.
 """
 
 import os
+import shutil
 import subprocess
 from typing import Any
 
@@ -21,10 +22,9 @@ class PSQLEnvironment(Environment):
         self.port = port
         self.psql = self._find_psql_on_path()
 
-    def _find_psql_on_path(self):
-        completed = subprocess.run(("which", "psql"), env=os.environ, capture_output=True)
-        psql_path = completed.stdout.decode('utf-8').strip()
-        if psql_path == '':
+    def _find_psql_on_path(self) -> str:
+        psql_path = shutil.which("psql")
+        if psql_path is None:
             raise ValueError("psql not found on PATH")
         return psql_path
 
