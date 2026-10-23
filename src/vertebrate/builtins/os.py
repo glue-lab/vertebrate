@@ -16,7 +16,7 @@ class OSEnvironment(Environment):
     Execute processes on the local operating system.
     """
 
-    def _exe_path(self, item: str) -> str:
+    def _exe_path(self, item: str) -> str | None:
         return shutil.which(item)
 
     def __contains__(self, item: str) -> bool:
@@ -24,6 +24,8 @@ class OSEnvironment(Environment):
 
     def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
         exe_path = self._exe_path(executable)
+        if exe_path is None:
+            raise KeyError(f"Executable not found: {executable}")
         completed = subprocess.run(
             (exe_path,) + args,
             env={**os.environ, **kwargs},

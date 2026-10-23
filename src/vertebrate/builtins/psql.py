@@ -42,6 +42,8 @@ class PSQLEnvironment(Environment):
         args: tuple = (),
         kwargs: dict = {},
     ) -> Any:
+        if executable not in self:
+            raise KeyError(f"Executable not found: {executable}")
         completed = subprocess.run(
             (self.psql,) + self._connection_args() + ("-f", executable),
             env={**os.environ, **kwargs},
