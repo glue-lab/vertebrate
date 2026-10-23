@@ -21,7 +21,7 @@ class PostgresEnvironment(Environment):
         return create_engine(url, echo=False)
 
     def __init__(self, user: str, dbname: str, host: str, port: str) -> None:
-        self.engine = PostgresEnvironment._postgres_engine(user, dbname, host, port)
+        self.engine = self._postgres_engine(user, dbname, host, port)
         self.meta = MetaData()
         self.conn = self.engine.connect()
 
@@ -44,8 +44,8 @@ class PostgresEnvironment(Environment):
         else:
             return id_name.lower()
 
-    @staticmethod
-    def _parse_exec_name(exec_name: str) -> dict[str, str]:
+    @classmethod
+    def _parse_exec_name(cls, exec_name: str) -> dict[str, str]:
 
         # Extract schema name from executable name if present
         schema_name = None
@@ -53,8 +53,8 @@ class PostgresEnvironment(Environment):
             schema_name, exec_name = exec_name.split(".")
 
         return {
-            "schema": PostgresEnvironment._identifier_name(schema_name),
-            "name": PostgresEnvironment._identifier_name(exec_name),
+            "schema": cls._identifier_name(schema_name),
+            "name": cls._identifier_name(exec_name),
         }
 
     def _pg_proc(self) -> Table:
@@ -100,16 +100,16 @@ class PostgresEnvironment(Environment):
         return num_items > 0
 
     def __contains__(self, item: str) -> bool:
-        info = PostgresEnvironment._parse_exec_name(item)
+        info = self._parse_exec_name(item)
         with self:
             if info["schema"] is None:
                 return self._contains_unqualified(info["name"])
             else:
                 return self._contains_qualified(info["schema"], info["name"])
 
-    @staticmethod
-    def _sql_call(executable: str) -> functions._FunctionGenerator:
-        info = PostgresEnvironment._parse_exec_name(executable)
+    @classmethod
+    def _sql_call(cls, executable: str) -> functions._FunctionGenerator:
+        info = cls._parse_exec_name(executable)
         if info["schema"] is None:
             sql_call = getattr(func, quoted_name(info["name"], quote=True))
         else:
@@ -120,6 +120,6 @@ class PostgresEnvironment(Environment):
     def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
         with self:
             result = self.conn.execute(
-                select(PostgresEnvironment._sql_call(executable)(*args))
+                select(self._sql_call(executable)(*args))
             )
             return result
