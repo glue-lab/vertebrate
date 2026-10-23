@@ -15,11 +15,19 @@ class PSQLEnvironment(Environment):
     Execute psql invocations with connection info passed as arguments.
     """
 
-    def __init__(self, user: str, dbname: str, host: str, port: str):
+    def __init__(
+        self,
+        user: str,
+        dbname: str,
+        host: str,
+        port: str,
+        options: tuple[str, ...] = (),
+    ) -> None:
         self.user = user
         self.dbname = dbname
         self.host = host
         self.port = port
+        self.options = options
         self.psql = self._find_psql_on_path()
 
     def _find_psql_on_path(self) -> str:
@@ -45,7 +53,11 @@ class PSQLEnvironment(Environment):
         if executable not in self:
             raise KeyError(f"Executable not found: {executable}")
         completed = subprocess.run(
-            (self.psql,) + self._connection_args() + ("-f", executable),
+            (self.psql,)
+            + self._connection_args()
+            + self.options
+            + args
+            + ("-f", executable),
             env={**os.environ, **kwargs},
             capture_output=True,
         )
