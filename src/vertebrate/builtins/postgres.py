@@ -5,8 +5,8 @@ Implementation of a PostgreSQL database as an execution environment.
 import string
 from typing import Any
 
-from sqlalchemy import create_engine, Engine, MetaData, Table
-from sqlalchemy.sql import and_, func, functions, quoted_name, select
+from sqlalchemy import create_engine, Engine, MetaData, Table, TextClause, text
+from sqlalchemy.sql import and_, func, select
 
 from vertebrate.compute import Environment
 
@@ -125,19 +125,21 @@ class PostgresEnvironment(Environment):
             else:
                 return self._contains_qualified(info["schema"], info["name"])
 
+    @staticmethod
+    def _quote_identifier(id_name: str) -> str:
+        # Colons are escaped so text() doesn't read them as bind parameters
+        return '"' + id_name.replace('"', '""').replace(":", "\\:") + '"'
+
     @classmethod
-    def _sql_call(cls, executable: str) -> functions._FunctionGenerator:
+    def _sql_call(cls, executable: str, args: tuple) -> TextClause:
         info = cls._parse_exec_name(executable)
-        if info["schema"] is None:
-            sql_call = getattr(func, quoted_name(info["name"], quote=True))
-        else:
-            sql_schema = getattr(func, quoted_name(info["schema"], quote=True))
-            sql_call = getattr(sql_schema, quoted_name(info["name"], quote=True))
-        return sql_call        
+        parts = [info["schema"], info["name"]]
+        qualified = ".".join(cls._quote_identifier(p) for p in parts if p is not None)
+        params = {f"arg{i}": arg for i, arg in enumerate(args)}
+        placeholders = ", ".join(f":{key}" for key in params)
+        return text(f"SELECT {qualified}({placeholders})").bindparams(**params)
 
     def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
         with self:
-            result = self.conn.execute(
-                select(self._sql_call(executable)(*args))
-            )
+            result = self.conn.execute(self._sql_call(executable, args))
             return result
