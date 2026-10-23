@@ -52,15 +52,21 @@ class PSQLEnvironment(Environment):
     ) -> Any:
         if executable not in self:
             raise KeyError(f"Executable not found: {executable}")
-        completed = subprocess.run(
-            (self.psql,)
-            + self._connection_args()
-            + self.options
-            + args
-            + ("-f", executable),
-            env={**os.environ, **kwargs},
-            capture_output=True,
-        )
+        try:
+            completed = subprocess.run(
+                (self.psql,)
+                + self._connection_args()
+                + self.options
+                + args
+                + ("-f", executable),
+                env={**os.environ, **kwargs},
+                capture_output=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError as error:
+            if error.stderr:
+                error.add_note(error.stderr.decode("utf-8", errors="replace"))
+            raise
         return completed.stdout.decode("utf-8")
 
     def __contains__(self, item: str) -> bool:
