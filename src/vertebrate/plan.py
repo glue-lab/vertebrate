@@ -8,7 +8,7 @@ from vertebrate.compute import Command, Environment
 from vertebrate.data import Address, Location, Namespace
 
 
-class Order(Location):
+class Order(Location, ABC):
     @property
     @abstractmethod
     def command(self) -> Command:
