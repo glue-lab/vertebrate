@@ -1,66 +1,7 @@
-from typing import Any
-
 import pytest
 
-from vertebrate.data import (
-    Address,
-    Location,
-    LocationTypes,
-    Namespace,
-    Temporary,
-    TemporaryLocation,
-    Transfer,
-    TransferImplementation,
-    Transfers,
-)
-
-
-class Value(Location):
-    def get(self) -> Any:
-        return self.namespace.values[self.address]
-
-    def set(self, value: Any) -> None:
-        self.namespace.values[self.address] = value
-
-
-class TemporaryValue(Value, TemporaryLocation):
-    pass
-
-
-class DictNamespace(Namespace, Temporary):
-    def __init__(self, values: dict[str, Any] | None = None) -> None:
-        self.values = {} if values is None else values
-
-    def type(self, address: Address) -> type | None:
-        return type(self.values[address]) if address in self.values else None
-
-    def __contains__(self, address: Address) -> bool:
-        return address in self.values
-
-    def __delitem__(self, address: Address) -> None:
-        del self.values[address]
-
-    @property
-    def LocationType(self) -> type[Location]:
-        return Value
-
-    def temp(self) -> TemporaryLocation:
-        address = f"tmp{len(self.values)}"
-        self.values[address] = None
-        return TemporaryValue(self, address)
-
-
-class DictTransfers(Transfers):
-    def __init__(self, catalog: dict[LocationTypes, TransferImplementation]) -> None:
-        self.catalog = catalog
-        self.lookups: list[LocationTypes] = []
-
-    def __getitem__(self, datatypes: LocationTypes) -> TransferImplementation | None:
-        self.lookups.append(datatypes)
-        return self.catalog.get(datatypes)
-
-    def __contains__(self, datatypes: LocationTypes) -> bool:
-        return datatypes in self.catalog
+from vertebrate.data import Namespace, Temporary, Transfer, Transfers
+from vertebrate.testing import DictNamespace, DictTransfers, Value
 
 
 def copy(source: Value, target: Value) -> None:
@@ -124,12 +65,14 @@ class TestTemporaryLocation:
     def test_exit_deletes_the_location(self):
         ns = DictNamespace()
         with ns.temp() as location:
+            location.set(1)
             assert location.address in ns
         assert location.address not in ns
 
     def test_exit_deletes_the_location_and_propagates_errors(self):
         ns = DictNamespace()
         with pytest.raises(RuntimeError), ns.temp() as location:
+            location.set(1)
             raise RuntimeError
         assert location.address not in ns
 
