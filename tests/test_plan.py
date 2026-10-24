@@ -58,6 +58,10 @@ SPEC = {
 
 
 class TestOrder:
+    def test_requires_command_and_requirements(self):
+        with pytest.raises(TypeError, match="abstract"):
+            Order(SpecOrders(SPEC), "build")
+
     def test_call_runs_its_command(self):
         orders = SpecOrders(SPEC)
         orders["build"]()
