@@ -2,6 +2,7 @@
 Implementations of ABCs that use remote OS resources via SSH.
 """
 
+import shlex
 import subprocess
 from typing import Any
 
@@ -21,8 +22,12 @@ class SSHEnvironment(Environment):
         self.host = host
 
     def _exec_ssh(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
+        # ssh hands the remote shell one string, so quote each argument into it
+        assignments = [f"{key}={value}" for key, value in kwargs.items()]
+        argv = ["env", *assignments] if assignments else []
+        command = shlex.join([*argv, executable, *args])
         completed = subprocess.run(
-            ("ssh", f"{self.user}@{self.host}", executable, *args),
+            ("ssh", f"{self.user}@{self.host}", command),
             capture_output=True,
         )
         return completed.stdout
