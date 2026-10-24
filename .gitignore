@@ -8,6 +8,11 @@ venv
 env
 *.lock
 
+# Test artifacts
+.coverage
+.coverage.*
+htmlcov
+
 # Build artifacts
 build
 dist
