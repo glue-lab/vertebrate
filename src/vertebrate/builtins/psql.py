@@ -22,12 +22,14 @@ class PSQLEnvironment(Environment):
         host: str,
         port: str,
         options: tuple[str, ...] = ("-v", "ON_ERROR_STOP=1", "--single-transaction"),
+        env: dict[str, str] | None = None,
     ) -> None:
         self.user = user
         self.dbname = dbname
         self.host = host
         self.port = port
         self.options = options
+        self.env = {} if env is None else env
         self.psql = self._find_psql_on_path()
 
     def _find_psql_on_path(self) -> str:
@@ -66,7 +68,7 @@ class PSQLEnvironment(Environment):
                     "-f",
                     executable,
                 ),
-                env={**os.environ, **kwargs},
+                env={**os.environ, **self.env, **kwargs},
                 capture_output=True,
                 check=True,
             )
