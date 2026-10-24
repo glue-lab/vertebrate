@@ -39,11 +39,14 @@ class Action:
 
 class Command:
     def __init__(
-        self, action: Action, args: tuple[Any, ...] = (), kwargs: dict[str, Any] = {}
+        self,
+        action: Action,
+        args: tuple[Any, ...] = (),
+        kwargs: dict[str, Any] | None = None,
     ) -> None:
         self._action = action
         self._args = args
-        self._kwargs = kwargs
+        self._kwargs = {} if kwargs is None else kwargs
 
     @property
     def action(self) -> Action:

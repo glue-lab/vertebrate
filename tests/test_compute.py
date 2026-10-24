@@ -78,3 +78,8 @@ class TestCommand:
         command()
         command()
         assert env.calls == [("ls", ("-l",), {})] * 2
+
+    def test_default_kwargs_are_not_shared_between_commands(self):
+        first = Command(RecordingEnvironment()["ls"])
+        first.kwargs["color"] = "never"
+        assert Command(RecordingEnvironment()["ls"]).kwargs == {}
