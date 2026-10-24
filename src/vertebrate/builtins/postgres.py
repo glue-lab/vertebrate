@@ -31,13 +31,25 @@ class PostgresEnvironment(Environment):
     """
 
     @staticmethod
-    def _postgres_engine(user: str, dbname: str, host: str, port: str) -> Engine:
+    def _postgres_engine(
+        user: str, dbname: str, host: str, port: str, connect_args: dict[str, Any]
+    ) -> Engine:
         url = f"postgresql+psycopg2://{user}@{host}:{port}/{dbname}"
         # NullPool: a released connection is closed rather than kept in reserve
-        return create_engine(url, echo=False, poolclass=NullPool)
+        return create_engine(
+            url, echo=False, poolclass=NullPool, connect_args=connect_args
+        )
 
-    def __init__(self, user: str, dbname: str, host: str, port: str) -> None:
-        self.engine = self._postgres_engine(user, dbname, host, port)
+    def __init__(
+        self,
+        user: str,
+        dbname: str,
+        host: str,
+        port: str,
+        connect_args: dict[str, Any] | None = None,
+    ) -> None:
+        connect_args = {} if connect_args is None else connect_args
+        self.engine = self._postgres_engine(user, dbname, host, port, connect_args)
         self.meta = MetaData()
 
     @contextmanager
