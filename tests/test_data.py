@@ -180,3 +180,15 @@ class TestTransfer:
         ns = DictNamespace({"a": "x", "b": 2})
         with pytest.raises(NotImplementedError, match="No transfer defined"):
             (ns["a"] >> ns["b"])()
+
+    def test_call_raises_when_no_catalog_is_configured(self, monkeypatch):
+        monkeypatch.setattr(Transfer, "catalog", None)
+        ns = DictNamespace({"a": 1, "b": 2})
+        with pytest.raises(NotImplementedError, match="No transfer catalog"):
+            (ns["a"] >> ns["b"])()
+
+    def test_call_with_explicit_transfer_needs_no_catalog(self, monkeypatch):
+        monkeypatch.setattr(Transfer, "catalog", None)
+        ns = DictNamespace({"a": 1, "b": 2})
+        (ns["a"] >> ns["b"])(transfer=stringify)
+        assert ns.values["b"] == "1"
