@@ -17,25 +17,49 @@ class SSHEnvironment(Environment):
     # These implementations are often a matter of expression;
     # SSH could be called directly using an OSEnvironment instance.
 
-    def __init__(self, user: str, host: str, options: tuple[str, ...] = ()) -> None:
+    def __init__(
+        self,
+        user: str,
+        host: str,
+        options: tuple[str, ...] = (),
+        check: bool = True,
+    ) -> None:
         self.user = user
         self.host = host
         self.options = options
+        self.check = check
 
-    def _exec_ssh(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
+    def _exec_ssh(
+        self,
+        executable: str,
+        args: tuple = (),
+        kwargs: dict = {},
+        check: bool = True,
+    ) -> Any:
         # ssh hands the remote shell one string, so quote each argument into it
         assignments = [f"{key}={value}" for key, value in kwargs.items()]
         argv = ["env", *assignments] if assignments else []
         command = shlex.join([*argv, executable, *args])
-        completed = subprocess.run(
-            ("ssh", *self.options, f"{self.user}@{self.host}", command),
-            capture_output=True,
-        )
+        try:
+            completed = subprocess.run(
+                ("ssh", *self.options, f"{self.user}@{self.host}", command),
+                capture_output=True,
+                check=check,
+            )
+        except subprocess.CalledProcessError as error:
+            if error.stderr:
+                error.add_note(error.stderr.decode("utf-8", errors="replace"))
+            raise
         return completed.stdout
 
     def __contains__(self, item: str) -> bool:
-        exe_path = self._exec_ssh("which", args=(item,))
-        return len(exe_path) > 0
+        try:
+            self._exec_ssh("which", args=(item,))
+        except subprocess.CalledProcessError as error:
+            if error.returncode == 1:  # `which` found nothing
+                return False
+            raise
+        return True
 
     def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
-        return self._exec_ssh(executable, args=args, kwargs=kwargs)
+        return self._exec_ssh(executable, args=args, kwargs=kwargs, check=self.check)
