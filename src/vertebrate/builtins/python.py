@@ -23,7 +23,9 @@ class PythonEnvironment(Environment):
         self.obj = obj
 
     def __contains__(self, item: str) -> bool:
-        return hasattr(self.obj, item)
+        return callable(getattr(self.obj, item, None))
 
     def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
+        if executable not in self:
+            raise KeyError(f"Executable not found: {executable}")
         return getattr(self.obj, executable)(*args, **kwargs)
