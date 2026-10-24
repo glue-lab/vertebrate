@@ -17,9 +17,10 @@ class SSHEnvironment(Environment):
     # These implementations are often a matter of expression;
     # SSH could be called directly using an OSEnvironment instance.
 
-    def __init__(self, user: str, host: str) -> None:
+    def __init__(self, user: str, host: str, options: tuple[str, ...] = ()) -> None:
         self.user = user
         self.host = host
+        self.options = options
 
     def _exec_ssh(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
         # ssh hands the remote shell one string, so quote each argument into it
@@ -27,7 +28,7 @@ class SSHEnvironment(Environment):
         argv = ["env", *assignments] if assignments else []
         command = shlex.join([*argv, executable, *args])
         completed = subprocess.run(
-            ("ssh", f"{self.user}@{self.host}", command),
+            ("ssh", *self.options, f"{self.user}@{self.host}", command),
             capture_output=True,
         )
         return completed.stdout
