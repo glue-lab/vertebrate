@@ -1,6 +1,9 @@
+import unittest
+
 import pytest
 
 from vertebrate.testing import (
+    DictNamespace,
     EnvironmentContract,
     NamespaceContract,
     TemporaryContract,
@@ -27,6 +30,41 @@ HOOKS = [
 def test_unimplemented_hook_names_itself_and_its_contract(contract, hook, args):
     with pytest.raises(NotImplementedError, match=f"{hook}.*{contract.__name__}"):
         getattr(contract(), hook)(*args)
+
+
+class ReadOnlyNamespace(DictNamespace):
+    def __delitem__(self, address):
+        raise NotImplementedError("read-only")
+
+
+class ReadOnlyContract(NamespaceContract):
+    def make_namespace(self):
+        return ReadOnlyNamespace({"a": 1})
+
+    def present_address(self):
+        return "a"
+
+    def absent_address(self):
+        return "missing"
+
+
+@pytest.mark.parametrize(
+    "test",
+    ["test_delete_removes_present_address", "test_delete_absent_address_does_nothing"],
+)
+def test_read_only_namespace_skips_deletion_tests_with_reason(test):
+    reason = r"deletion not supported \(NotImplementedError: read-only\)"
+    with pytest.raises(unittest.SkipTest, match=reason):
+        getattr(ReadOnlyContract(), test)()
+
+
+def test_forgotten_hook_is_not_mistaken_for_read_only():
+    class MissingAbsentAddress(NamespaceContract):
+        def make_namespace(self):
+            return DictNamespace({"a": 1})
+
+    with pytest.raises(NotImplementedError, match="absent_address"):
+        MissingAbsentAddress().test_delete_absent_address_does_nothing()
 
 
 class TestRaises:

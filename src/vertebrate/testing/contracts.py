@@ -8,6 +8,8 @@ framework that collects `test_*` methods can run it. For unittest, also mix in
 contracts under `python -O`.
 """
 
+import unittest
+
 from vertebrate.compute import Action, Environment
 from vertebrate.data import (
     Address,
@@ -23,6 +25,15 @@ from vertebrate.testing._assertions import raises
 
 def _unimplemented(contract: str, hook: str) -> NotImplementedError:
     return NotImplementedError(f"Implement {hook}() to run {contract}")
+
+
+def _delete_or_skip(namespace: Namespace, address: Address) -> None:
+    # unittest.SkipTest is honored by unittest and pytest alike
+    try:
+        del namespace[address]
+    except NotImplementedError as error:
+        reason = f"deletion not supported ({type(error).__name__}: {error})"
+        raise unittest.SkipTest(reason) from error
 
 
 class EnvironmentContract:
@@ -72,6 +83,9 @@ class NamespaceContract:
     location for it (through which it may be created), may report the type it
     would hold, and deleting it does nothing.
 
+    A namespace may be read-only: if deletion raises NotImplementedError, the
+    deletion tests are skipped, with the error's message as the reason.
+
     Hooks: `make_namespace()` returns a fresh namespace; `present_address()`
     names an address in it; `absent_address()` names one that isn't.
     """
@@ -119,12 +133,12 @@ class NamespaceContract:
 
     def test_delete_removes_present_address(self):
         namespace, address = self.make_namespace(), self.present_address()
-        del namespace[address]
+        _delete_or_skip(namespace, address)
         assert address not in namespace, f"{address!r} should have been deleted"
 
     def test_delete_absent_address_does_nothing(self):
         namespace, address = self.make_namespace(), self.absent_address()
-        del namespace[address]
+        _delete_or_skip(namespace, address)
         assert address not in namespace, f"{address!r} should still be absent"
 
 
