@@ -9,7 +9,11 @@ Tools for testing implementations of Vertebrate's ABCs.
 Nothing here depends on a test framework.
 """
 
-from vertebrate.testing.contracts import EnvironmentContract
+from vertebrate.testing.contracts import (
+    EnvironmentContract,
+    NamespaceContract,
+    TemporaryContract,
+)
 from vertebrate.testing.doubles import (
     DictNamespace,
     DictTransfers,
@@ -24,9 +28,11 @@ __all__ = [
     "DictNamespace",
     "DictTransfers",
     "EnvironmentContract",
+    "NamespaceContract",
     "RecordingEnvironment",
     "SpecOrder",
     "SpecOrders",
+    "TemporaryContract",
     "TemporaryValue",
     "Value",
 ]

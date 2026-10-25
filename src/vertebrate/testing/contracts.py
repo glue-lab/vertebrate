@@ -9,6 +9,7 @@ contracts under `python -O`.
 """
 
 from vertebrate.compute import Action, Environment
+from vertebrate.data import Address, Location, Namespace, Temporary, TemporaryLocation
 from vertebrate.testing._assertions import raises
 
 
@@ -53,3 +54,126 @@ class EnvironmentContract:
         environment, name = self.make_environment(), self.absent_executable()
         with raises(KeyError):
             environment[name]()
+
+
+class NamespaceContract:
+    """
+    Promises every Namespace keeps.
+
+    An absent address is a normal state, not an error: the namespace hands out a
+    location for it (through which it may be created), may report the type it
+    would hold, and deleting it does nothing.
+
+    Hooks: `make_namespace()` returns a fresh namespace; `present_address()`
+    names an address in it; `absent_address()` names one that isn't.
+    """
+
+    def make_namespace(self) -> Namespace:
+        raise _unimplemented("NamespaceContract", "make_namespace")
+
+    def present_address(self) -> Address:
+        raise _unimplemented("NamespaceContract", "present_address")
+
+    def absent_address(self) -> Address:
+        raise _unimplemented("NamespaceContract", "absent_address")
+
+    def test_contains_present_address(self):
+        namespace, address = self.make_namespace(), self.present_address()
+        assert address in namespace, f"{address!r} should be in {namespace!r}"
+
+    def test_does_not_contain_absent_address(self):
+        namespace, address = self.make_namespace(), self.absent_address()
+        assert address not in namespace, f"{address!r} should not be in {namespace!r}"
+
+    def test_getitem_returns_location_bound_to_namespace(self):
+        namespace = self.make_namespace()
+        for address in (self.present_address(), self.absent_address()):
+            location = namespace[address]
+            assert isinstance(location, namespace.LocationType), (
+                f"{location!r} should be a {namespace.LocationType!r}"
+            )
+            assert location.namespace is namespace, "Location should be bound to it"
+            assert location.address == address, f"{location.address!r} != {address!r}"
+
+    def test_location_type_matches_namespace_type(self):
+        namespace, address = self.make_namespace(), self.present_address()
+        location_type, namespace_type = namespace[address].type, namespace.type(address)
+        assert location_type == namespace_type, (
+            f"{location_type!r} != {namespace_type!r}"
+        )
+
+    def test_type_of_absent_address_is_a_type_or_none(self):
+        namespace, address = self.make_namespace(), self.absent_address()
+        datatype = namespace.type(address)
+        assert datatype is None or isinstance(datatype, type), (
+            f"type({address!r}) should be a type or None, not {datatype!r}"
+        )
+
+    def test_delete_removes_present_address(self):
+        namespace, address = self.make_namespace(), self.present_address()
+        del namespace[address]
+        assert address not in namespace, f"{address!r} should have been deleted"
+
+    def test_delete_absent_address_does_nothing(self):
+        namespace, address = self.make_namespace(), self.absent_address()
+        del namespace[address]
+        assert address not in namespace, f"{address!r} should still be absent"
+
+
+class _BlockError(Exception):
+    pass
+
+
+class TemporaryContract:
+    """
+    Promises every Temporary namespace keeps.
+
+    Hooks: `make_namespace()` returns a fresh namespace; `populate(location)`
+    writes something to a location so that its address exists.
+    """
+
+    def make_namespace(self) -> Temporary:
+        raise _unimplemented("TemporaryContract", "make_namespace")
+
+    def populate(self, location: Location) -> None:
+        raise _unimplemented("TemporaryContract", "populate")
+
+    def test_temp_returns_temporary_location_in_namespace(self):
+        namespace = self.make_namespace()
+        location = namespace.temp()
+        assert isinstance(location, TemporaryLocation), (
+            f"{location!r} should be a TemporaryLocation"
+        )
+        assert location.namespace is namespace, "Location should be bound to it"
+
+    def test_temp_address_is_unused(self):
+        namespace = self.make_namespace()
+        address = namespace.temp().address
+        assert address not in namespace, f"{address!r} should not exist yet"
+
+    def test_temp_addresses_are_distinct(self):
+        namespace = self.make_namespace()
+        first = namespace.temp()
+        self.populate(first)
+        second = namespace.temp()
+        assert first.address != second.address, f"{first.address!r} was reused"
+
+    def test_exit_removes_populated_location(self):
+        namespace = self.make_namespace()
+        with namespace.temp() as location:
+            self.populate(location)
+            assert location.address in namespace, "populate() should create it"
+        assert location.address not in namespace, f"{location.address!r} remains"
+
+    def test_exit_tolerates_unpopulated_location(self):
+        namespace = self.make_namespace()
+        with namespace.temp() as location:
+            pass
+        assert location.address not in namespace, f"{location.address!r} remains"
+
+    def test_exit_removes_location_when_block_raises(self):
+        namespace = self.make_namespace()
+        with raises(_BlockError), namespace.temp() as location:
+            self.populate(location)
+            raise _BlockError
+        assert location.address not in namespace, f"{location.address!r} remains"

@@ -1,4 +1,10 @@
-from vertebrate.testing import EnvironmentContract, RecordingEnvironment
+from vertebrate.testing import (
+    DictNamespace,
+    EnvironmentContract,
+    NamespaceContract,
+    RecordingEnvironment,
+    TemporaryContract,
+)
 
 
 class TestRecordingEnvironment(EnvironmentContract):
@@ -10,3 +16,21 @@ class TestRecordingEnvironment(EnvironmentContract):
 
     def absent_executable(self):
         return "not_a_program"
+
+
+class TestDictNamespace(NamespaceContract, TemporaryContract):
+    def make_namespace(self):
+        return DictNamespace({"a": 1})
+
+    def present_address(self):
+        return "a"
+
+    def absent_address(self):
+        return "missing"
+
+    def populate(self, location):
+        location.set(1)
+
+    def test_temp_skips_addresses_already_in_use(self):
+        namespace = DictNamespace({"tmp_0": "user data"})
+        assert namespace.temp().address != "tmp_0"
