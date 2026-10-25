@@ -20,8 +20,9 @@ from vertebrate.data import (
     TemporaryLocation,
     Transfers,
 )
-from vertebrate.plan import Order
+from vertebrate.plan import Order, Orders, Plan
 from vertebrate.testing._assertions import raises
+from vertebrate.testing.doubles import RecordingEnvironment, SpecOrders
 
 
 def _unimplemented(contract: str, hook: str) -> NotImplementedError:
@@ -274,3 +275,72 @@ class OrdersContract(NamespaceContract):
         assert isinstance(environment, Environment), (
             f"environment({name!r}) should be an Environment, not {environment!r}"
         )
+
+
+def _plan_spec() -> dict[str, dict]:
+    requirements = {
+        "leaf": [],
+        "c1": [],
+        "c2": ["c1"],
+        "c3": ["c2"],
+        "base": [],
+        "left": ["base"],
+        "right": ["base"],
+        "top": ["left", "right"],
+        "unrelated": [],
+    }
+    return {
+        name: {"env": "recorder", "exe": name, "requirements": required}
+        for name, required in requirements.items()
+    }
+
+
+class PlanContract:
+    """
+    Promises every Plan keeps.
+
+    The contract supplies its own orders: a requirement-free order, a chain, a
+    diamond (whose base is shared) and an unrelated order. Each records when it
+    runs.
+
+    Hooks: `make_plan(orders)` returns a plan over the given orders.
+    """
+
+    def make_plan(self, orders: Orders) -> Plan:
+        raise _unimplemented("PlanContract", "make_plan")
+
+    def _make(self, address: Address) -> list[str]:
+        spec = _plan_spec()
+        recorder = RecordingEnvironment(spec)
+        self.make_plan(SpecOrders(spec, {"recorder": recorder})).make(address)
+        return [executable for executable, _, _ in recorder.calls]
+
+    def test_make_runs_the_order(self):
+        ran = self._make("c3")
+        assert "c3" in ran, f"make('c3') ran {ran!r}"
+
+    def test_make_runs_an_order_without_requirements(self):
+        ran = self._make("leaf")
+        assert ran == ["leaf"], f"make('leaf') ran {ran!r}"
+
+    def test_make_runs_requirements_before_dependents(self):
+        ran = self._make("top")
+        for dependent, requirement in [
+            ("left", "base"),
+            ("right", "base"),
+            ("top", "left"),
+            ("top", "right"),
+        ]:
+            assert requirement in ran and dependent in ran, f"make('top') ran {ran!r}"
+            assert ran.index(requirement) < ran.index(dependent), (
+                f"{requirement!r} should run before {dependent!r}; ran {ran!r}"
+            )
+
+    def test_make_runs_each_order_once(self):
+        ran = self._make("top")
+        repeated = sorted({name for name in ran if ran.count(name) > 1})
+        assert not repeated, f"{repeated!r} ran more than once; ran {ran!r}"
+
+    def test_make_runs_only_what_the_order_requires(self):
+        ran = self._make("c3")
+        assert set(ran) == {"c1", "c2", "c3"}, f"make('c3') ran {ran!r}"
