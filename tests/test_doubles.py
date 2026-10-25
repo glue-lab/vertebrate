@@ -3,7 +3,9 @@ from vertebrate.testing import (
     DictTransfers,
     EnvironmentContract,
     NamespaceContract,
+    OrdersContract,
     RecordingEnvironment,
+    SpecOrders,
     TemporaryContract,
     TransfersContract,
 )
@@ -47,3 +49,21 @@ class TestDictTransfers(TransfersContract):
 
     def unsupported_datatypes(self):
         return (str, int)
+
+
+class TestSpecOrders(OrdersContract):
+    def make_namespace(self):
+        spec = {
+            "build": {"env": "shell", "exe": "make", "requirements": ["fetch"]},
+            "fetch": {"env": "shell", "exe": "curl"},
+        }
+        return SpecOrders(spec, {"shell": RecordingEnvironment({"make", "curl"})})
+
+    def present_address(self):
+        return "build"
+
+    def absent_address(self):
+        return "missing"
+
+    def environment_name(self):
+        return "shell"

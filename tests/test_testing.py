@@ -6,6 +6,7 @@ from vertebrate.testing import (
     DictNamespace,
     EnvironmentContract,
     NamespaceContract,
+    OrdersContract,
     TemporaryContract,
     TransfersContract,
 )
@@ -23,6 +24,7 @@ HOOKS = [
     (TransfersContract, "make_transfers", ()),
     (TransfersContract, "supported_datatypes", ()),
     (TransfersContract, "unsupported_datatypes", ()),
+    (OrdersContract, "environment_name", ()),
 ]
 
 

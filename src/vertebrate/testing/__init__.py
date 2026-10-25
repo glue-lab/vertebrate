@@ -12,6 +12,7 @@ Nothing here depends on a test framework.
 from vertebrate.testing.contracts import (
     EnvironmentContract,
     NamespaceContract,
+    OrdersContract,
     TemporaryContract,
     TransfersContract,
 )
@@ -30,6 +31,7 @@ __all__ = [
     "DictTransfers",
     "EnvironmentContract",
     "NamespaceContract",
+    "OrdersContract",
     "RecordingEnvironment",
     "SpecOrder",
     "SpecOrders",

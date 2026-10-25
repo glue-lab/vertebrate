@@ -1,8 +1,11 @@
 import pytest
 
+import vertebrate.examples.orders as examples
 from vertebrate.builtins.files import FileSystem
+from vertebrate.builtins.orders import SimpleOrders
+from vertebrate.builtins.python import PythonEnvironment
 from vertebrate.builtins.variables import Dictionary
-from vertebrate.testing import NamespaceContract, TemporaryContract
+from vertebrate.testing import NamespaceContract, OrdersContract, TemporaryContract
 
 
 class TestDictionary(NamespaceContract, TemporaryContract):
@@ -33,3 +36,17 @@ class TestFileSystem(NamespaceContract):
 
     def absent_address(self):
         return str(self.directory / "absent.csv")
+
+
+class TestSimpleOrders(OrdersContract):
+    def make_namespace(self):
+        return SimpleOrders(examples.specs, PythonEnvironment(examples))
+
+    def present_address(self):
+        return "file2"
+
+    def absent_address(self):
+        return "missing"
+
+    def environment_name(self):
+        return "PythonEnvironment"
