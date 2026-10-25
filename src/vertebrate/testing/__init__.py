@@ -13,6 +13,7 @@ from vertebrate.testing.contracts import (
     EnvironmentContract,
     NamespaceContract,
     OrdersContract,
+    PlanContract,
     TemporaryContract,
     TransfersContract,
 )
@@ -32,6 +33,7 @@ __all__ = [
     "EnvironmentContract",
     "NamespaceContract",
     "OrdersContract",
+    "PlanContract",
     "RecordingEnvironment",
     "SpecOrder",
     "SpecOrders",
