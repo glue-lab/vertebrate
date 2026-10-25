@@ -1,9 +1,11 @@
 from vertebrate.testing import (
     DictNamespace,
+    DictTransfers,
     EnvironmentContract,
     NamespaceContract,
     RecordingEnvironment,
     TemporaryContract,
+    TransfersContract,
 )
 
 
@@ -34,3 +36,14 @@ class TestDictNamespace(NamespaceContract, TemporaryContract):
     def test_temp_skips_addresses_already_in_use(self):
         namespace = DictNamespace({"tmp_0": "user data"})
         assert namespace.temp().address != "tmp_0"
+
+
+class TestDictTransfers(TransfersContract):
+    def make_transfers(self):
+        return DictTransfers({(int, str): lambda source, target: None})
+
+    def supported_datatypes(self):
+        return (int, str)
+
+    def unsupported_datatypes(self):
+        return (str, int)

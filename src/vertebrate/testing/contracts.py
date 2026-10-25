@@ -9,7 +9,15 @@ contracts under `python -O`.
 """
 
 from vertebrate.compute import Action, Environment
-from vertebrate.data import Address, Location, Namespace, Temporary, TemporaryLocation
+from vertebrate.data import (
+    Address,
+    Location,
+    LocationTypes,
+    Namespace,
+    Temporary,
+    TemporaryLocation,
+    Transfers,
+)
 from vertebrate.testing._assertions import raises
 
 
@@ -177,3 +185,40 @@ class TemporaryContract:
             self.populate(location)
             raise _BlockError
         assert location.address not in namespace, f"{location.address!r} remains"
+
+
+class TransfersContract:
+    """
+    Promises every Transfers catalog keeps.
+
+    Hooks: `make_transfers()` returns a fresh catalog; `supported_datatypes()`
+    names a (source, target) pair of types it can transfer between;
+    `unsupported_datatypes()` names a pair it can't.
+    """
+
+    def make_transfers(self) -> Transfers:
+        raise _unimplemented("TransfersContract", "make_transfers")
+
+    def supported_datatypes(self) -> LocationTypes:
+        raise _unimplemented("TransfersContract", "supported_datatypes")
+
+    def unsupported_datatypes(self) -> LocationTypes:
+        raise _unimplemented("TransfersContract", "unsupported_datatypes")
+
+    def test_contains_supported_datatypes(self):
+        transfers, datatypes = self.make_transfers(), self.supported_datatypes()
+        assert datatypes in transfers, f"{datatypes!r} should be in {transfers!r}"
+
+    def test_does_not_contain_unsupported_datatypes(self):
+        transfers, datatypes = self.make_transfers(), self.unsupported_datatypes()
+        assert datatypes not in transfers, f"{datatypes!r} should not be in it"
+
+    def test_getitem_returns_transfer_for_supported_datatypes(self):
+        transfers, datatypes = self.make_transfers(), self.supported_datatypes()
+        transfer = transfers[datatypes]
+        assert callable(transfer), f"transfers[{datatypes!r}] is {transfer!r}"
+
+    def test_getitem_returns_none_for_unsupported_datatypes(self):
+        transfers, datatypes = self.make_transfers(), self.unsupported_datatypes()
+        transfer = transfers[datatypes]
+        assert transfer is None, f"transfers[{datatypes!r}] is {transfer!r}"
