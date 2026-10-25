@@ -1,6 +1,15 @@
 import pytest
 
+from vertebrate.testing import EnvironmentContract
 from vertebrate.testing._assertions import raises
+
+
+@pytest.mark.parametrize(
+    "hook", ["make_environment", "present_executable", "absent_executable"]
+)
+def test_unimplemented_hook_names_itself_and_its_contract(hook):
+    with pytest.raises(NotImplementedError, match=f"{hook}.*EnvironmentContract"):
+        getattr(EnvironmentContract(), hook)()
 
 
 class TestRaises:
