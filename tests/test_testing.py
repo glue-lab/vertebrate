@@ -1,15 +1,28 @@
 import pytest
 
-from vertebrate.testing import EnvironmentContract
+from vertebrate.testing import (
+    EnvironmentContract,
+    NamespaceContract,
+    TemporaryContract,
+)
 from vertebrate.testing._assertions import raises
 
+HOOKS = [
+    (EnvironmentContract, "make_environment", ()),
+    (EnvironmentContract, "present_executable", ()),
+    (EnvironmentContract, "absent_executable", ()),
+    (NamespaceContract, "make_namespace", ()),
+    (NamespaceContract, "present_address", ()),
+    (NamespaceContract, "absent_address", ()),
+    (TemporaryContract, "make_namespace", ()),
+    (TemporaryContract, "populate", (None,)),
+]
 
-@pytest.mark.parametrize(
-    "hook", ["make_environment", "present_executable", "absent_executable"]
-)
-def test_unimplemented_hook_names_itself_and_its_contract(hook):
-    with pytest.raises(NotImplementedError, match=f"{hook}.*EnvironmentContract"):
-        getattr(EnvironmentContract(), hook)()
+
+@pytest.mark.parametrize(("contract", "hook", "args"), HOOKS)
+def test_unimplemented_hook_names_itself_and_its_contract(contract, hook, args):
+    with pytest.raises(NotImplementedError, match=f"{hook}.*{contract.__name__}"):
+        getattr(contract(), hook)(*args)
 
 
 class TestRaises:
