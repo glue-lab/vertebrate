@@ -13,6 +13,7 @@ from vertebrate.testing.contracts import (
     EnvironmentContract,
     NamespaceContract,
     TemporaryContract,
+    TransfersContract,
 )
 from vertebrate.testing.doubles import (
     DictNamespace,
@@ -34,5 +35,6 @@ __all__ = [
     "SpecOrders",
     "TemporaryContract",
     "TemporaryValue",
+    "TransfersContract",
     "Value",
 ]

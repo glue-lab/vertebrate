@@ -4,6 +4,7 @@ from vertebrate.testing import (
     EnvironmentContract,
     NamespaceContract,
     TemporaryContract,
+    TransfersContract,
 )
 from vertebrate.testing._assertions import raises
 
@@ -16,6 +17,9 @@ HOOKS = [
     (NamespaceContract, "absent_address", ()),
     (TemporaryContract, "make_namespace", ()),
     (TemporaryContract, "populate", (None,)),
+    (TransfersContract, "make_transfers", ()),
+    (TransfersContract, "supported_datatypes", ()),
+    (TransfersContract, "unsupported_datatypes", ()),
 ]
 
 
