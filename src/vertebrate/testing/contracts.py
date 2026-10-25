@@ -10,7 +10,7 @@ contracts under `python -O`.
 
 import unittest
 
-from vertebrate.compute import Action, Environment
+from vertebrate.compute import Action, Command, Environment
 from vertebrate.data import (
     Address,
     Location,
@@ -20,6 +20,7 @@ from vertebrate.data import (
     TemporaryLocation,
     Transfers,
 )
+from vertebrate.plan import Order
 from vertebrate.testing._assertions import raises
 
 
@@ -236,3 +237,40 @@ class TransfersContract:
         transfers, datatypes = self.make_transfers(), self.unsupported_datatypes()
         transfer = transfers[datatypes]
         assert transfer is None, f"transfers[{datatypes!r}] is {transfer!r}"
+
+
+class OrdersContract(NamespaceContract):
+    """
+    Promises every Orders namespace keeps, in addition to NamespaceContract's.
+
+    Hooks: those of NamespaceContract, where `present_address()` should name an
+    order with requirements; `environment_name()` names an environment the
+    orders can resolve.
+    """
+
+    def environment_name(self) -> str:
+        raise _unimplemented("OrdersContract", "environment_name")
+
+    def test_getitem_returns_order(self):
+        orders, address = self.make_namespace(), self.present_address()
+        order = orders[address]
+        assert isinstance(order, Order), f"{order!r} should be an Order"
+
+    def test_order_command_is_command(self):
+        orders, address = self.make_namespace(), self.present_address()
+        command = orders[address].command
+        assert isinstance(command, Command), f"{command!r} should be a Command"
+
+    def test_order_requirements_are_orders(self):
+        orders, address = self.make_namespace(), self.present_address()
+        for requirement in orders[address].requirements:
+            assert requirement in orders, (
+                f"{address!r} requires {requirement!r}, which is not in {orders!r}"
+            )
+
+    def test_environment_resolves_to_environment(self):
+        orders, name = self.make_namespace(), self.environment_name()
+        environment = orders.environment(name)
+        assert isinstance(environment, Environment), (
+            f"environment({name!r}) should be an Environment, not {environment!r}"
+        )
