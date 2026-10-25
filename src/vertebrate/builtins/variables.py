@@ -31,8 +31,8 @@ class Dictionary(Namespace, Temporary):
     def __init__(self, dict_: dict[str, Any]):
         self.dict_ = dict_
 
-    def type(self, address: Address) -> builtins.type:
-        return type(self.dict_[address])
+    def type(self, address: Address) -> builtins.type | None:
+        return type(self.dict_[address]) if address in self.dict_ else None
 
     @property
     def LocationType(self) -> builtins.type[Location]:
@@ -42,7 +42,7 @@ class Dictionary(Namespace, Temporary):
         return address in self.dict_
 
     def __delitem__(self, address: Address) -> None:
-        del self.dict_[address]
+        self.dict_.pop(address, None)
 
     def temp(self) -> TemporaryLocation:
         temp_key = f"tmp_{str(uuid4()).replace('-', '_')}"
