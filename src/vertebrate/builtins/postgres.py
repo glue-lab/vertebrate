@@ -4,7 +4,7 @@ Implementation of a PostgreSQL database as an execution environment.
 
 from typing import Any
 
-from sqlalchemy import create_engine, Engine, MetaData, Table
+from sqlalchemy import Engine, MetaData, Table, create_engine
 from sqlalchemy.sql import and_, func, functions, quoted_name, select
 
 from vertebrate.compute import Environment
@@ -77,12 +77,13 @@ class PostgresEnvironment(Environment):
         p = self._pg_proc()
         n = self._pg_namespace()
         num_items = self.conn.execute(
-            select(func.count()).\
-            where(and_(
-                p.c.proname == exec_name,
-                p.c.pronamespace == n.c.oid,
-                n.c.nspname == func.any(func.current_schemas(True)),
-            ))
+            select(func.count()).where(
+                and_(
+                    p.c.proname == exec_name,
+                    p.c.pronamespace == n.c.oid,
+                    n.c.nspname == func.any(func.current_schemas(True)),
+                )
+            )
         ).scalar_one()
         return num_items > 0
 
@@ -90,12 +91,13 @@ class PostgresEnvironment(Environment):
         p = self._pg_proc()
         n = self._pg_namespace()
         num_items = self.conn.execute(
-            select(func.count()).\
-            where(and_(
-                p.c.proname == exec_name,
-                p.c.pronamespace == n.c.oid,
-                n.c.nspname == schema_name,
-            ))
+            select(func.count()).where(
+                and_(
+                    p.c.proname == exec_name,
+                    p.c.pronamespace == n.c.oid,
+                    n.c.nspname == schema_name,
+                )
+            )
         ).scalar_one()
         return num_items > 0
 
@@ -115,7 +117,7 @@ class PostgresEnvironment(Environment):
         else:
             sql_schema = getattr(func, quoted_name(info["schema"], quote=True))
             sql_call = getattr(sql_schema, quoted_name(info["name"], quote=True))
-        return sql_call        
+        return sql_call
 
     def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
         with self:

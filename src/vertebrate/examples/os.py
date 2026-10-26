@@ -15,12 +15,12 @@ def main():
     print()
 
     print('++ Execute `ls -l .` -> ls("-l", ".")')
-    print(local_machine["ls"]("-l", ".").decode("utf-8"))
+    print(ls("-l", ".").decode("utf-8"))
     # ^^ Return type is bytes
     print()
 
     msg = "++ Environment variables can be passed in as kwargs"
-    msg += '\n-> sh("-c", "printf $item", item="hello")'
+    msg += '\n-> local_machine["sh"]("-c", "printf $item", item="hello")'
     print(msg)
     print(local_machine["sh"]("-c", "printf $item", item="hello").decode("utf-8"))
     print()

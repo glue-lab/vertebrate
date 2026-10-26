@@ -9,11 +9,10 @@ from vertebrate.data import Address
 
 
 def format_address(address: Address) -> str:
-    return re.sub('[^a-zA-Z0-9]', '_', address).strip('_')
+    return re.sub("[^a-zA-Z0-9]", "_", address).strip("_")
 
 
-class ObjectByAddress(object):
-
+class ObjectByAddress:
     def __init__(self, dict_: dict[str, Any]):
         self.dict_ = dict_
 

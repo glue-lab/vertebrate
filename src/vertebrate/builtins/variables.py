@@ -2,20 +2,20 @@
 An implementation of a variable namespace.
 """
 
-from typing import Any, Type
+import builtins
+from typing import Any
 from uuid import uuid4
 
 from vertebrate.data import (
-    Namespace,
-    Location,
     Address,
+    Location,
+    Namespace,
     Temporary,
     TemporaryLocation,
 )
 
 
 class Value(Location):
-
     def get(self) -> Any:
         return self.namespace.dict_[self.address]
 
@@ -28,15 +28,14 @@ class TemporaryValue(Value, TemporaryLocation):
 
 
 class Dictionary(Namespace, Temporary):
-
     def __init__(self, dict_: dict[str, Any]):
         self.dict_ = dict_
 
-    def type(self, address: Address) -> type:
+    def type(self, address: Address) -> builtins.type:
         return type(self.dict_[address])
 
     @property
-    def LocationType(self) -> Type[Location]:
+    def LocationType(self) -> builtins.type[Location]:
         return Value
 
     def __contains__(self, address: Address) -> bool:

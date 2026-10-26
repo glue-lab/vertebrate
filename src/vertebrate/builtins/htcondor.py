@@ -20,7 +20,20 @@ class HTCondorEnvironment(Environment):
     """
 
     # NOTE: Currently hard-coded to CHTC
-    SUBMIT_REQUIREMENTS = '(TARGET.PoolName == "CHTC") && ((((Target.OpSysMajorVer == 9) && (Target.OpSysName =!= "Debian") &&  !(Target.OSPool ?: false))) || (((Target.OSPool ?: false) && ((Target.OSGVO_OS_STRING ?: "") == "RHEL 9")))) && (TARGET.Arch == "X86_64") && (TARGET.OpSys == "LINUX") && (TARGET.Disk >= RequestDisk) && (TARGET.Memory >= RequestMemory) && ((TARGET.FileSystemDomain == MY.FileSystemDomain) || (TARGET.HasFileTransfer))'
+    SUBMIT_REQUIREMENTS = (
+        '(TARGET.PoolName == "CHTC") && '
+        "((((Target.OpSysMajorVer == 9) && "
+        '(Target.OpSysName =!= "Debian") && '
+        " !(Target.OSPool ?: false))) || "
+        "(((Target.OSPool ?: false) && "
+        '((Target.OSGVO_OS_STRING ?: "") == "RHEL 9")))) && '
+        '(TARGET.Arch == "X86_64") && '
+        '(TARGET.OpSys == "LINUX") && '
+        "(TARGET.Disk >= RequestDisk) && "
+        "(TARGET.Memory >= RequestMemory) && "
+        "((TARGET.FileSystemDomain == MY.FileSystemDomain) || "
+        "(TARGET.HasFileTransfer))"
+    )
 
     DONE = 4
 
@@ -57,9 +70,9 @@ class HTCondorEnvironment(Environment):
             time.sleep(self.poll_secs)
             ads = self.access_point.query(
                 f"ClusterID == {submit_object.cluster()}",
-                projection = ["ProcID", "JobStatus"],
+                projection=["ProcID", "JobStatus"],
             )
-            done = all(i['JobStatus'] == HTCondorEnvironment.DONE for i in ads)
+            done = all(i["JobStatus"] == HTCondorEnvironment.DONE for i in ads)
 
     def execute(self, executable: str, args: tuple = (), kwargs: dict = {}) -> Any:
         kwargs["executable"] = executable

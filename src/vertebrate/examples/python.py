@@ -6,7 +6,6 @@ import sys
 
 from vertebrate.builtins.python import PythonEnvironment
 
-
 type Numeric = int | float
 
 
@@ -14,8 +13,7 @@ def subtract(a: Numeric, b: Numeric) -> Numeric:
     return a - b
 
 
-class AddTo(object):
-
+class AddTo:
     def __init__(self, x: Numeric):
         self.x = x
 

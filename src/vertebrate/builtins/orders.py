@@ -2,17 +2,17 @@
 A simple implementation of an order namespace.
 """
 
-from typing import Any, Type
+import builtins
+from typing import Any
 
-from vertebrate.builtins.python import PythonEnvironment
 from vertebrate.builtins.os import OSEnvironment
+from vertebrate.builtins.python import PythonEnvironment
 from vertebrate.compute import Command, Environment
 from vertebrate.data import Address
 from vertebrate.plan import Order, Orders
 
 
 class SimpleOrder(Order):
-
     @property
     def info(self) -> dict[str, Any]:
         return self.namespace.spec[self.address]
@@ -29,13 +29,12 @@ class SimpleOrder(Order):
 
 
 class SimpleOrders(Orders):
-
     def __init__(self, spec: dict[str, Any], pyenv: PythonEnvironment) -> None:
         self.spec = spec
         self.pyenv = pyenv
         self.osenv = OSEnvironment()
 
-    def type(self, address: Address) -> type | None:
+    def type(self, address: Address) -> builtins.type | None:
         # No meaningful notion of order type for now
         if address in self:
             return Order
@@ -47,7 +46,7 @@ class SimpleOrders(Orders):
         raise NotImplementedError("Deletion not implemented for SimpleOrders")
 
     @property
-    def LocationType(self) -> Type[Order]:
+    def LocationType(self) -> builtins.type[Order]:
         return SimpleOrder
 
     def PythonEnvironment(self) -> PythonEnvironment:

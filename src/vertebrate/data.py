@@ -2,11 +2,10 @@
 ABCs for data transfer.
 """
 
+import builtins
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from types import TracebackType
-from typing import Any, Type
-
 
 type Address = str
 
@@ -16,8 +15,9 @@ class Namespace(ABC):
     A typed collection of locations where data resides.
     """
 
+    # Rename (e.g. `datatype`)? Shadows `type` in class bodies, hence `builtins.type`
     @abstractmethod
-    def type(self, address: Address) -> type | None:
+    def type(self, address: Address) -> builtins.type | None:
         pass
 
     @abstractmethod
@@ -30,7 +30,7 @@ class Namespace(ABC):
 
     @property
     @abstractmethod
-    def LocationType(self) -> Type["Location"]:
+    def LocationType(self) -> builtins.type["Location"]:
         pass
 
     def __getitem__(self, address: Address) -> "Location":
@@ -47,7 +47,7 @@ class Temporary(ABC):
         pass
 
 
-class Location(object):
+class Location:
     """
     A location that data can be read from and written to.
     The exact semantics of its read and write operations differ
@@ -67,7 +67,7 @@ class Location(object):
         return self._address
 
     @property
-    def type(self) -> type:
+    def type(self) -> builtins.type:
         return self.namespace.type(self.address)
 
     def __rshift__(self, loc: "Location") -> "Transfer":
@@ -119,7 +119,7 @@ class Transfers(ABC):
         pass
 
 
-class Transfer(object):
+class Transfer:
     """
     A transfer of data from one location to another.
     """

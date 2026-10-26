@@ -5,15 +5,13 @@ Implementation of a Plan that uses the Luigi framework for orchestration.
 import luigi
 
 from vertebrate.builtins.dag import DAGPlan
-from vertebrate.builtins.utils import format_address, ObjectByAddress
+from vertebrate.builtins.utils import ObjectByAddress, format_address
 from vertebrate.data import Address
-
 
 tasks = ObjectByAddress(globals())
 
 
 class LuigiPlan(DAGPlan):
-
     def _define_tasks(self, address: Address) -> None:
 
         orders = self.orders
@@ -26,10 +24,7 @@ class LuigiPlan(DAGPlan):
                     file_out.write("DONE")
 
             def requires(self):
-                return [
-                    tasks[req]()
-                    for req in orders[self.name].requirements
-                ]
+                return [tasks[req]() for req in orders[self.name].requirements]
 
             def output(self):
                 # A good place to save receipts if/when implemented

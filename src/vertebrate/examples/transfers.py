@@ -10,7 +10,6 @@ from vertebrate.builtins.transfers import ExplicitTransfers, PathTransfers
 from vertebrate.builtins.variables import Dictionary
 from vertebrate.data import Transfer
 
-
 if __name__ == "__main__":
     print("++ NOTE: This example requires the 'transfers' extra dependency group")
     print("-> pip install vertebrate[transfers]")
@@ -22,7 +21,7 @@ if __name__ == "__main__":
     print()
 
     print("++ Get a reference to this module's variable namespace")
-    print("-> variables = Dictionary(locals())")
+    print("-> variables = Dictionary(globals())")
     variables = Dictionary(globals())
     print()
 
@@ -37,8 +36,8 @@ if __name__ == "__main__":
     print()
 
     print("++ Write example data to file as JSON")
-    print('-> (variables["data"] >> files["output/data.json"])()')
-    print('NOTE: This creates example.json in your working directory')
+    print('-> (variables["data"] >> files["example.json"])()')
+    print("NOTE: This creates example.json in your working directory")
     (variables["data"] >> files["example.json"])()
     print()
 
@@ -48,12 +47,15 @@ if __name__ == "__main__":
     print()
 
     print("++ Contents of the 'restored' variable")
-    print("print(restored)")
-    print(restored)
+    print("-> print(restored)")
+    print(restored)  # noqa: F821
     print()
 
     print("++ Define some example tabular data in a Pandas DataFrame")
-    print('-> example = DataFrame({"a": ["Athabasca"], "b": ["Bosphorus"], "c": ["Cerulean"]})')
+    print(
+        "-> example = DataFrame("
+        '{"a": ["Athabasca"], "b": ["Bosphorus"], "c": ["Cerulean"]})'
+    )
     example = DataFrame({"a": ["Athabasca"], "b": ["Bosphorus"], "c": ["Cerulean"]})
     print()
 

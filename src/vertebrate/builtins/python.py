@@ -2,7 +2,6 @@
 Implementations of ABCs using pure Python.
 """
 
-import sys
 from typing import Any, Protocol, runtime_checkable
 
 from vertebrate.compute import Environment
@@ -10,7 +9,6 @@ from vertebrate.compute import Environment
 
 @runtime_checkable
 class WithAttributes(Protocol):
-
     __dict__: dict[str, Any]
 
 

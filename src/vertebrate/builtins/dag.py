@@ -10,13 +10,11 @@ import networkx as nx
 from vertebrate.data import Address
 from vertebrate.plan import Plan
 
-
 type DAG = dict[Address, list[Address]]
 type Edge = tuple[Address, Address]
 
 
 class DAGPlan(Plan):
-
     def _populate_dag(self, dag: DAG, address: Address) -> None:
         order = self.orders[address]
         for req in order.requirements:

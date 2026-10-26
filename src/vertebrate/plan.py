@@ -3,14 +3,12 @@ ABCs for planning/orchestration.
 """
 
 from abc import ABC, abstractmethod
-from typing import Type
 
 from vertebrate.compute import Command, Environment
 from vertebrate.data import Address, Location, Namespace
 
 
 class Order(Location):
-
     @property
     @abstractmethod
     def command(self) -> Command:
@@ -27,10 +25,9 @@ class Order(Location):
 
 
 class Orders(Namespace):
-
     @property
     @abstractmethod
-    def LocationType(self) -> Type[Order]:
+    def LocationType(self) -> type[Order]:
         pass
 
     @abstractmethod
@@ -41,7 +38,6 @@ class Orders(Namespace):
 
 # Should Plans be proper Environments? They are collections of executable Orders
 class Plan(ABC):
-
     def __init__(self, orders: Orders) -> None:
         self._orders = orders
 

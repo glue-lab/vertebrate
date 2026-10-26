@@ -2,17 +2,15 @@
 An implementation of a table namespace.
 """
 
-from contextlib import closing
-from typing import Type
+import builtins
 
-from sqlalchemy import create_engine, exc, MetaData, Table as SQLTable
-from sqlalchemy.orm import Session
+from sqlalchemy import MetaData, create_engine, exc
+from sqlalchemy import Table as SQLTable
 
-from vertebrate.data import Namespace, Location, Address
+from vertebrate.data import Address, Location, Namespace
 
 
 class Table(Location):
-
     def __call__(self):
         return SQLTable(
             self.address,
@@ -22,22 +20,21 @@ class Table(Location):
 
 
 class Database(Namespace):
-
     def __init__(self, db_url: str, *args, **kwargs) -> None:
         self.engine = create_engine(db_url, *args, **kwargs)
         self.meta = MetaData()
 
-    def type(self, address: Address) -> type:
+    def type(self, address: Address) -> builtins.type:
         # Rudimentary table typing
         return SQLTable
 
     @property
-    def LocationType(self) -> Type[Location]:
+    def LocationType(self) -> builtins.type[Location]:
         return Table
 
     def __contains__(self, address: Address) -> bool:
         try:
-            table = self[address]()
+            self[address]()
             return True
         except exc.NoSuchTableError:
             return False
