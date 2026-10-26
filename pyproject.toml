@@ -61,11 +61,29 @@ htcondor = [
 Repository = "https://github.com/glue-lab/vertebrate"
 
 [dependency-groups]
+test = [
+  "pytest>=9.1",
+  "pytest-cov>=7.1",
+]
 dev = [
   "ruff>=0.17",
+  { include-group = "test" },
 ]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "RUF"]
 # Deferred to the typing step: mutable defaults in signatures, ClassVar registries
 ignore = ["B006", "RUF012"]
+
+[tool.pytest]
+testpaths = ["tests"]
+addopts = ["--import-mode=importlib", "--strict-markers"]
+xfail_strict = true
+
+[tool.coverage.run]
+source = ["vertebrate"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_also = ["@abstractmethod"]

@@ -69,4 +69,4 @@ class FileSystem(Namespace):
         return Path(address).exists()
 
     def __delitem__(self, address: Address) -> None:
-        Path(address).unlink()
+        Path(address).unlink(missing_ok=True)
