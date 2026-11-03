@@ -147,6 +147,10 @@ class Transfer:
         source_type = source if source else self.source.type
         target_type = target if target else self.target.type
         if not transfer:
+            if self.catalog is None:
+                msg = "No transfer catalog configured; set Transfer.catalog or pass "
+                msg += "transfer=..."
+                raise NotImplementedError(msg)
             transfer = self.catalog[source_type, target_type]
         if not transfer:
             msg = f"No transfer defined from {source_type} to {target_type}."
