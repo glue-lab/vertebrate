@@ -1,3 +1,4 @@
+import math
 import os
 import subprocess
 
@@ -110,3 +111,46 @@ class TestOSEnvironment(EnvironmentContract):
     def test_check_false_returns_stdout_despite_non_zero_exit(self):
         output = OSEnvironment(check=False)["sh"]("-c", "echo out; exit 3")
         assert output == b"out\n"
+
+
+class Calculator:
+    precision = 2
+
+    class Result:
+        def __init__(self, value):
+            self.value = value
+
+    def scale(self, x, factor=1):
+        return round(x * factor, self.precision)
+
+
+class TestPythonEnvironment(EnvironmentContract):
+    def make_environment(self):
+        return PythonEnvironment(Calculator())
+
+    def present_executable(self):
+        return "scale"
+
+    def absent_executable(self):
+        return "missing"
+
+    def test_calls_method_with_args_and_kwargs(self):
+        assert PythonEnvironment(Calculator())["scale"](1.234, factor=2) == 2.47
+
+    def test_non_callable_attribute_is_not_an_executable(self):
+        assert "precision" not in PythonEnvironment(Calculator())
+
+    def test_calling_non_callable_attribute_raises_key_error(self):
+        with pytest.raises(KeyError, match="precision"):
+            PythonEnvironment(Calculator())["precision"]()
+
+    def test_classes_are_executables_that_construct_instances(self):
+        environment = PythonEnvironment(Calculator())
+        assert "Result" in environment
+        assert environment["Result"](3).value == 3
+
+    def test_wraps_modules(self):
+        environment = PythonEnvironment(math)
+        assert "sqrt" in environment
+        assert "pi" not in environment
+        assert environment["sqrt"](16) == 4.0
